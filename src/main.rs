@@ -1,8 +1,5 @@
-#[path = "Sorting/pancakesort.rs"]
-mod pancakesort;
+mod gui;
 
-fn main() {
-    println!("Hello, world!");
-    let sorted_array = pancakesort::pancake_sort(vec![3, 1, 4, 1, 5, 9]);
-    println!("Sorted array: {:?}", sorted_array);
+fn main() -> Result<(), eframe::Error> {
+    gui::gui_main::run_gui()
 }
