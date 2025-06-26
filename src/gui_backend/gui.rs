@@ -29,6 +29,7 @@ enum SortingAlgorithm {
     QuadSort,
     BurstSort,
     SpaghettiSort,
+    Duck,
 }
 impl Default for SortingAlgorithm {
     fn default() -> Self { SortingAlgorithm::QuickSort }
@@ -63,6 +64,9 @@ impl SorthosApp {
     fn show_spaghettisort_page(&mut self, ui: &mut egui::Ui) {
         ui.heading("Spaghetti Sort"); ui.separator();
         // add Spaghetti Sort visualization here
+    }
+    fn show_duck_page(&mut self, ui: &mut egui::Ui) {
+        ui.heading("Duck"); ui.separator();
     }
 }
 
@@ -137,6 +141,7 @@ impl eframe::App for SorthosApp {
             ui.selectable_label(matches!(self.selected_algorithm, SortingAlgorithm::QuadSort), "Quad Sort").clicked().then(|| self.selected_algorithm = SortingAlgorithm::QuadSort);
             ui.selectable_label(matches!(self.selected_algorithm, SortingAlgorithm::BurstSort), "Burst Sort").clicked().then(|| self.selected_algorithm = SortingAlgorithm::BurstSort);
             ui.selectable_label(matches!(self.selected_algorithm, SortingAlgorithm::SpaghettiSort), "Spaghetti Sort").clicked().then(|| self.selected_algorithm = SortingAlgorithm::SpaghettiSort);
+            ui.selectable_label(matches!(self.selected_algorithm, SortingAlgorithm::Duck), "Duck").clicked().then(|| self.selected_algorithm = SortingAlgorithm::Duck);
         });
         egui::CentralPanel::default().show(ctx, |ui| match self.selected_algorithm {
             SortingAlgorithm::QuickSort => self.show_quicksort_page(ui),
@@ -144,6 +149,7 @@ impl eframe::App for SorthosApp {
             SortingAlgorithm::QuadSort => self.show_quadsort_page(ui),
             SortingAlgorithm::BurstSort => self.show_burstsort_page(ui),
             SortingAlgorithm::SpaghettiSort => self.show_spaghettisort_page(ui),
+            SortingAlgorithm::Duck => self.show_duck_page(ui),
         });
     }
 }
