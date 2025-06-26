@@ -93,6 +93,8 @@ impl GifHandler {
     }
 
     pub fn render(&mut self, ui: &mut egui::Ui, size: [f32; 2]) {
+        // Ensure egui repaints every frame for smooth animation
+        ui.ctx().request_repaint();
         self.update(ui.input(|i| i.unstable_dt));
         
         if let Some(texture) = self.get_current_frame() {
