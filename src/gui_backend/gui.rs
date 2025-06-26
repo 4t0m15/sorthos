@@ -1,4 +1,5 @@
 use eframe::egui::{self, Style, Visuals, Sense, vec2, pos2};
+use crate::gif_handler::GifHandler;
 
 /// Dark or Light theme.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -39,11 +40,39 @@ impl Default for SortingAlgorithm {
 pub struct SorthosApp {
     selected_algorithm: SortingAlgorithm,
     theme: Theme,
+    duck_gif: GifHandler,
 }
 
 impl SorthosApp {
-    pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
-        Default::default()
+    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        let mut app = Self::default();
+        
+        // Try to load the duck gif from assets
+        // Use path relative to cargo project root, or try multiple possible paths
+        let possible_paths = [
+            "src/assets/spinning-duck.gif",
+            "assets/spinning-duck.gif", 
+            "./src/assets/spinning-duck.gif",
+        ];
+        
+        let mut loaded = false;
+        for path_str in &possible_paths {
+            let duck_path = std::path::Path::new(path_str);
+            if duck_path.exists() {
+                if let Err(e) = app.duck_gif.load_gif_from_file(&cc.egui_ctx, duck_path) {
+                    eprintln!("Warning: Could not load duck gif from {}: {}", path_str, e);
+                } else {
+                    loaded = true;
+                    break;
+                }
+            }
+        }
+        
+        if !loaded {
+            eprintln!("Warning: Could not find duck gif in any of the expected locations");
+        }
+        
+        app
     }
     fn show_quicksort_page(&mut self, ui: &mut egui::Ui) {
         ui.heading("Quick Sort"); ui.separator();
@@ -66,7 +95,13 @@ impl SorthosApp {
         // add Spaghetti Sort visualization here
     }
     fn show_duck_page(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Duck"); ui.separator();
+        ui.heading("Duck");
+        ui.separator();
+        
+        // Center the duck gif
+        ui.vertical_centered(|ui| {
+            self.duck_gif.render(ui, [128.0, 128.0]);
+        });
     }
 }
 

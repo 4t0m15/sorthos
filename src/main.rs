@@ -1,3 +1,4 @@
+mod gif_handler;
 mod gui_backend;
 use gui_backend::gui;
 
