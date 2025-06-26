@@ -1,5 +1,6 @@
-mod gui;
+mod gui_backend;
+use gui_backend::gui;
 
 fn main() -> Result<(), eframe::Error> {
-    gui::gui_main::run_gui()
+    gui::run_gui()
 }
