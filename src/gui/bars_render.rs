@@ -17,6 +17,12 @@ pub struct SortVisualizerApp {
 
 impl SortVisualizerApp {
     pub fn reset_bars(&mut self) {
+        // Abandon any in-progress sort by replacing the channel and clearing sorting flag
+        let (new_tx, new_rx) = mpsc::channel();
+        self.tx = new_tx;
+        self.rx = new_rx;
+        self.sorting = false;
+
         self.bars = (0..self.num_bars).map(SortBar::new).collect();
         // Apply current theme to newly reset bars
         self.apply_theme(self.current_theme);
