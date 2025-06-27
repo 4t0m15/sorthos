@@ -39,6 +39,8 @@ impl SortVisualizerApp {
         }
         self.sorting = true;
         let algo = self.algorithm;
+        // Ensure displayed bars have the correct colors before sorting
+        apply_theme_consistency(&mut self.bars, self.current_theme);
         // Clone and enforce correct bar colors before starting
         let mut bars_clone = self.bars.clone();
         apply_theme_consistency(&mut bars_clone, self.current_theme);
@@ -111,6 +113,9 @@ impl eframe::App for SortVisualizerApp {
                 }
             }
             ui.separator();
+
+            // Title for the controls menu
+            ui.label("Controls:");
 
             ui.horizontal(|ui| {
                 if ui.button("Shuffle").clicked() && !self.sorting {

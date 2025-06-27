@@ -59,6 +59,8 @@ impl Sorthos {
         if let Err(_e) = app.duck_gif.load_gif_from_bytes(&cc.egui_ctx, DUCK_GIF, "duck") {
             print!("Duck gif failed to load.");
         }
+        // Ensure bars use theme colors (white for Dark) on first launch
+        app.sort_app.apply_theme(app.theme);
         app
     }
     fn show_duck_page(&mut self, ui: &mut egui::Ui) {

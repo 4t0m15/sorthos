@@ -1,8 +1,8 @@
-#[path = "Sorting/bubble_sort.rs"]
+#[path = "../Sorting/bubble_sort.rs"]
 mod bubble_sort;
-#[path = "Sorting/selection_sort.rs"]
+#[path = "../Sorting/selection_sort.rs"]
 mod selection_sort;
-#[path = "Sorting/insertion_sort.rs"]
+#[path = "../Sorting/insertion_sort.rs"]
 mod insertion_sort;
 
 use crate::models::SortBar;
