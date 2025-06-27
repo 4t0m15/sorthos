@@ -3,6 +3,7 @@ use crate::sorting::{start_sort, Operation, SortingAlgorithm};
 use eframe::egui::{self, Color32, Slider};
 use rand::seq::SliceRandom;
 use std::sync::mpsc;
+use crate::gui_backend::gui::Theme;
 
 pub struct SortVisualizerApp {
     bars: Vec<SortBar>,
@@ -11,11 +12,14 @@ pub struct SortVisualizerApp {
     sorting: bool,
     rx: mpsc::Receiver<Operation>,
     tx: mpsc::Sender<Operation>,
+    current_theme: Theme,
 }
 
 impl SortVisualizerApp {
     pub fn reset_bars(&mut self) {
         self.bars = (0..self.num_bars).map(SortBar::new).collect();
+        // Apply current theme to newly reset bars
+        self.apply_theme(self.current_theme);
     }
 
     fn shuffle_bars(&mut self) {
@@ -55,6 +59,19 @@ impl SortVisualizerApp {
         }
     }
 
+    /// Apply the current theme to all bar colors.
+    pub fn apply_theme(&mut self, theme: Theme) {
+        use eframe::egui::Color32;
+        // Store and apply theme
+        self.current_theme = theme;
+        for bar in &mut self.bars {
+            bar.color = match theme {
+                Theme::Light => Color32::BLACK,
+                Theme::Dark => Color32::WHITE,
+            };
+        }
+    }
+
     /// Create a new SortVisualizerApp with given number of bars and initial algorithm.
     pub fn new(num_bars: usize, algorithm: SortingAlgorithm) -> Self {
         let (tx, rx) = mpsc::channel();
@@ -65,7 +82,9 @@ impl SortVisualizerApp {
             sorting: false,
             tx,
             rx,
+            current_theme: Theme::Light, // default, will be applied below
         };
+        // Initialize bars with default values and apply theme
         app.reset_bars();
         app
     }

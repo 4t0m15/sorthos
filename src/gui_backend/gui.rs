@@ -56,10 +56,9 @@ impl SorthosApp {
         
         // Embed the duck gif at compile time
         const DUCK_GIF: &[u8] = include_bytes!("../assets/spinning-duck.gif");
-        if let Err(e) = app.duck_gif.load_gif_from_bytes(&cc.egui_ctx, DUCK_GIF, "duck") {
-            eprintln!("Warning: Could not load duck gif: {}", e);
+        if let Err(_e) = app.duck_gif.load_gif_from_bytes(&cc.egui_ctx, DUCK_GIF, "duck") {
+            print!("Duck gif failed to load.");
         }
-        
         app
     }
     fn show_duck_page(&mut self, ui: &mut egui::Ui) {
@@ -136,6 +135,9 @@ impl eframe::App for SorthosApp {
                 let mut is_light = self.theme == Theme::Light;
                 if ui.add(toggle(&mut is_light)).changed() {
                     self.theme = if is_light { Theme::Light } else { Theme::Dark };
+                    // Reset and reapply theme to sort_app for consistent bar colors
+                    self.sort_app.reset_bars();
+                    self.sort_app.apply_theme(self.theme);
                 }
             });
             ui.separator();
