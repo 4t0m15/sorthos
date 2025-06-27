@@ -33,14 +33,14 @@ impl Default for SortingAlgorithm {
     fn default() -> Self { SortingAlgorithm::About }
 }
 
-pub struct SorthosApp {
+pub struct Sorthos {
     selected_algorithm: SortingAlgorithm,
     theme: Theme,
     duck_gif: GifHandler,
     sort_app: SortVisualizerApp,
 }
 
-impl Default for SorthosApp {
+impl Default for Sorthos {
     fn default() -> Self {
         Self {
             selected_algorithm: SortingAlgorithm::default(),
@@ -50,7 +50,7 @@ impl Default for SorthosApp {
         }
     }
 }
-impl SorthosApp {
+impl Sorthos {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let mut app = Self::default();
         
@@ -121,7 +121,7 @@ pub fn toggle(on: &mut bool) -> impl egui::Widget + '_ {
     move |ui: &mut egui::Ui| toggle_ui(ui, on)
 }
 
-impl eframe::App for SorthosApp {
+impl eframe::App for Sorthos {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         ctx.set_style(self.theme.default_style());
         // Top panel only shows the main title now
@@ -131,7 +131,7 @@ impl eframe::App for SorthosApp {
         egui::SidePanel::left("algorithm_selector").show(ctx, |ui| {
             // Side panel title with inline theme toggle
             ui.horizontal(|ui| {
-                ui.heading("Light/Dark");
+                ui.heading("Dark/Light");
                 let mut is_light = self.theme == Theme::Light;
                 if ui.add(toggle(&mut is_light)).changed() {
                     self.theme = if is_light { Theme::Light } else { Theme::Dark };
@@ -164,6 +164,6 @@ pub fn run_gui() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Sorthos - Sorting Algorithms Visualizer",
         options,
-        Box::new(|cc| Ok(Box::new(SorthosApp::new(cc)) as Box<dyn eframe::App>)),
+        Box::new(|cc| Ok(Box::new(Sorthos::new(cc)) as Box<dyn eframe::App>)),
     )
 }

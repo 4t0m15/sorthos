@@ -4,7 +4,7 @@ use eframe::egui::{self, Color32, Slider};
 use rand::seq::SliceRandom;
 use std::sync::mpsc;
 use crate::gui_backend::gui::Theme;
-use crate::gui::check_theme_consistancy::ensure_theme_consistency;
+use crate::gui::check_theme_consistancy::apply_theme_consistency;
 
 pub struct SortVisualizerApp {
     bars: Vec<SortBar>,
@@ -41,7 +41,7 @@ impl SortVisualizerApp {
         let algo = self.algorithm;
         // Clone and enforce correct bar colors before starting
         let mut bars_clone = self.bars.clone();
-        ensure_theme_consistency(&mut bars_clone, self.current_theme);
+        apply_theme_consistency(&mut bars_clone, self.current_theme);
         let tx = self.tx.clone();
         start_sort(algo, bars_clone, tx);
     }
@@ -75,15 +75,9 @@ impl SortVisualizerApp {
 
     /// Apply the current theme to all bar colors.
     pub fn apply_theme(&mut self, theme: Theme) {
-        use eframe::egui::Color32;
         // Store and apply theme
         self.current_theme = theme;
-        for bar in &mut self.bars {
-            bar.color = match theme {
-                Theme::Light => Color32::BLACK,
-                Theme::Dark => Color32::WHITE,
-            };
-        }
+        apply_theme_consistency(&mut self.bars, theme);
     }
 
     /// Create a new SortVisualizerApp with given number of bars and initial algorithm.
@@ -108,10 +102,6 @@ impl eframe::App for SortVisualizerApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // First, handle incoming sort operations:
         self.handle_ops();
-
-        egui::TopBottomPanel::top("top").show(ctx, |ui| {
-            ui.heading("Sorthos");
-        });
 
         egui::SidePanel::left("side").show(ctx, |ui| {
             ui.label("Algorithm:");
