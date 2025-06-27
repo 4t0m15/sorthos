@@ -2967,6 +2967,7 @@ dependencies = [
  "egui",
  "image 0.24.9",
  "pixels",
+ "rand",
 ]
 
 [[package]]

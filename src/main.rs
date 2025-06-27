@@ -1,7 +1,9 @@
 mod gif_handler;
+mod gui;
 mod gui_backend;
-use gui_backend::gui;
+mod models;
+mod sorting;
 
 fn main() -> Result<(), eframe::Error> {
-    gui::run_gui()
+    gui_backend::gui::run_gui()
 }

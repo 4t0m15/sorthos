@@ -1,32 +1,40 @@
 use eframe::egui;
 use std::path::Path;
+use std::time::Duration;
+
+/// A single animation frame with its texture and display duration.
+struct Frame {
+    texture: egui::TextureHandle,
+    duration: f32, // seconds
+}
 
 pub struct GifHandler {
-    pub frames: Vec<egui::TextureHandle>,
-    pub current_time: f32,
-    pub frame_duration: f32,
+    frames: Vec<Frame>,
+    current_frame: usize,
+    elapsed: f32,
 }
 
 impl Default for GifHandler {
     fn default() -> Self {
         Self {
             frames: Vec::new(),
-            current_time: 0.0,
-            frame_duration: 1.0 / 12.0, // 12 FPS
+            current_frame: 0,
+            elapsed: 0.0,
         }
     }
 }
 
 impl GifHandler {
-
     pub fn load_gif_from_bytes(
         &mut self,
         ctx: &egui::Context,
         gif_bytes: &[u8],
         name: &str,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        // Clear existing frames
+        // Clear existing frames and reset animation state
         self.frames.clear();
+        self.current_frame = 0;
+        self.elapsed = 0.0;
 
         use std::io::Cursor;
         use image::codecs::gif::GifDecoder;
@@ -38,6 +46,9 @@ impl GifHandler {
 
         // Upload each frame as a texture
         for (frame_index, frame) in frames.into_iter().enumerate() {
+            // Extract frame delay before consuming the frame
+            let delay_dur: Duration = frame.delay().into();
+            let delay = delay_dur.as_secs_f32();
             // Convert frame into an ImageBuffer to get dimensions and raw data
             let buffer = frame.into_buffer(); // RGBA ImageBuffer<u8>
             let (w_u32, h_u32) = buffer.dimensions();
@@ -51,7 +62,7 @@ impl GifHandler {
             let image = egui::ColorImage { size: [w, h], pixels };
             let frame_name = format!("{}_frame{}", name, frame_index);
             let texture = ctx.load_texture(frame_name, image, egui::TextureOptions::default());
-            self.frames.push(texture);
+            self.frames.push(Frame { texture, duration: delay });
         }
 
         Ok(())
@@ -79,17 +90,17 @@ impl GifHandler {
 
     pub fn update(&mut self, delta_time: f32) {
         if !self.frames.is_empty() {
-            self.current_time += delta_time;
+            self.elapsed += delta_time;
+            // advance frame while enough time has passed
+            while self.elapsed >= self.frames[self.current_frame].duration && !self.frames.is_empty() {
+                self.elapsed -= self.frames[self.current_frame].duration;
+                self.current_frame = (self.current_frame + 1) % self.frames.len();
+            }
         }
     }
 
     pub fn get_current_frame(&self) -> Option<&egui::TextureHandle> {
-        if self.frames.is_empty() {
-            return None;
-        }
-        
-        let frame_index = ((self.current_time / self.frame_duration) as usize) % self.frames.len();
-        self.frames.get(frame_index)
+        self.frames.get(self.current_frame).map(|f| &f.texture)
     }
 
     pub fn render(&mut self, ui: &mut egui::Ui, size: [f32; 2]) {
@@ -102,7 +113,6 @@ impl GifHandler {
         } else {
             // Show a placeholder when no GIF is loaded
             ui.vertical_centered(|ui| {
-                ui.label("🦆");
                 ui.small("Duck GIF not found");
             });
         }
