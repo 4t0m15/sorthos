@@ -1,5 +1,6 @@
 use eframe::egui::{self, Style, Visuals, Sense, vec2, pos2};
 use crate::gif_handler::GifHandler;
+use crate::gui::bars_render::SortVisualizerApp;
 
 /// Dark or Light theme.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -25,74 +26,41 @@ impl Default for Theme {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum SortingAlgorithm {
-    QuickSort,
-    Introsort,
-    QuadSort,
-    BurstSort,
-    SpaghettiSort,
+    About,
     Duck,
 }
 impl Default for SortingAlgorithm {
-    fn default() -> Self { SortingAlgorithm::QuickSort }
+    fn default() -> Self { SortingAlgorithm::About }
 }
 
-#[derive(Default)]
 pub struct SorthosApp {
     selected_algorithm: SortingAlgorithm,
     theme: Theme,
     duck_gif: GifHandler,
+    sort_app: SortVisualizerApp,
 }
 
+impl Default for SorthosApp {
+    fn default() -> Self {
+        Self {
+            selected_algorithm: SortingAlgorithm::default(),
+            theme: Theme::default(),
+            duck_gif: GifHandler::default(),
+            sort_app: SortVisualizerApp::new(100, crate::sorting::SortingAlgorithm::Quick),
+        }
+    }
+}
 impl SorthosApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let mut app = Self::default();
         
-        // Try to load the duck gif from assets
-        // Use path relative to cargo project root, or try multiple possible paths
-        let possible_paths = [
-            "src/assets/spinning-duck.gif",
-            "assets/spinning-duck.gif", 
-            "./src/assets/spinning-duck.gif",
-        ];
-        
-        let mut loaded = false;
-        for path_str in &possible_paths {
-            let duck_path = std::path::Path::new(path_str);
-            if duck_path.exists() {
-                if let Err(e) = app.duck_gif.load_gif_from_file(&cc.egui_ctx, duck_path) {
-                    eprintln!("Warning: Could not load duck gif from {}: {}", path_str, e);
-                } else {
-                    loaded = true;
-                    break;
-                }
-            }
-        }
-        
-        if !loaded {
-            eprintln!("Warning: Could not find duck gif in any of the expected locations");
+        // Embed the duck gif at compile time
+        const DUCK_GIF: &[u8] = include_bytes!("../assets/spinning-duck.gif");
+        if let Err(e) = app.duck_gif.load_gif_from_bytes(&cc.egui_ctx, DUCK_GIF, "duck") {
+            eprintln!("Warning: Could not load duck gif: {}", e);
         }
         
         app
-    }
-    fn show_quicksort_page(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Quick Sort"); ui.separator();
-        // add Quick Sort visualization here
-    }
-    fn show_introsort_page(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Introsort"); ui.separator();
-        // add Introsort visualization here
-    }
-    fn show_quadsort_page(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Quad Sort"); ui.separator();
-        // add Quad Sort visualization here
-    }
-    fn show_burstsort_page(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Burst Sort"); ui.separator();
-        // add Burst Sort visualization here
-    }
-    fn show_spaghettisort_page(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Spaghetti Sort"); ui.separator();
-        // add Spaghetti Sort visualization here
     }
     fn show_duck_page(&mut self, ui: &mut egui::Ui) {
         ui.heading("Duck");
@@ -155,7 +123,7 @@ pub fn toggle(on: &mut bool) -> impl egui::Widget + '_ {
 }
 
 impl eframe::App for SorthosApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         ctx.set_style(self.theme.default_style());
         // Top panel only shows the main title now
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
@@ -171,21 +139,17 @@ impl eframe::App for SorthosApp {
                 }
             });
             ui.separator();
-            ui.selectable_label(matches!(self.selected_algorithm, SortingAlgorithm::QuickSort), "Quick Sort").clicked().then(|| self.selected_algorithm = SortingAlgorithm::QuickSort);
-            ui.selectable_label(matches!(self.selected_algorithm, SortingAlgorithm::Introsort), "Introsort").clicked().then(|| self.selected_algorithm = SortingAlgorithm::Introsort);
-            ui.selectable_label(matches!(self.selected_algorithm, SortingAlgorithm::QuadSort), "Quad Sort").clicked().then(|| self.selected_algorithm = SortingAlgorithm::QuadSort);
-            ui.selectable_label(matches!(self.selected_algorithm, SortingAlgorithm::BurstSort), "Burst Sort").clicked().then(|| self.selected_algorithm = SortingAlgorithm::BurstSort);
-            ui.selectable_label(matches!(self.selected_algorithm, SortingAlgorithm::SpaghettiSort), "Spaghetti Sort").clicked().then(|| self.selected_algorithm = SortingAlgorithm::SpaghettiSort);
             ui.selectable_label(matches!(self.selected_algorithm, SortingAlgorithm::Duck), "Duck").clicked().then(|| self.selected_algorithm = SortingAlgorithm::Duck);
         });
-        egui::CentralPanel::default().show(ctx, |ui| match self.selected_algorithm {
-            SortingAlgorithm::QuickSort => self.show_quicksort_page(ui),
-            SortingAlgorithm::Introsort => self.show_introsort_page(ui),
-            SortingAlgorithm::QuadSort => self.show_quadsort_page(ui),
-            SortingAlgorithm::BurstSort => self.show_burstsort_page(ui),
-            SortingAlgorithm::SpaghettiSort => self.show_spaghettisort_page(ui),
-            SortingAlgorithm::Duck => self.show_duck_page(ui),
-        });
+        if self.selected_algorithm == SortingAlgorithm::About {
+            // Delegate full UI drawing to sort_app
+            self.sort_app.update(ctx, frame);
+        } else {
+            egui::CentralPanel::default().show(ctx, |ui| match self.selected_algorithm {
+                SortingAlgorithm::Duck => self.show_duck_page(ui),
+                _ => {},
+            });
+        }
     }
 }
 

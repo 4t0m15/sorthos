@@ -14,7 +14,7 @@ pub struct SortVisualizerApp {
 }
 
 impl SortVisualizerApp {
-    fn reset_bars(&mut self) {
+    pub fn reset_bars(&mut self) {
         self.bars = (0..self.num_bars).map(SortBar::new).collect();
     }
 
@@ -54,6 +54,21 @@ impl SortVisualizerApp {
             }
         }
     }
+
+    /// Create a new SortVisualizerApp with given number of bars and initial algorithm.
+    pub fn new(num_bars: usize, algorithm: SortingAlgorithm) -> Self {
+        let (tx, rx) = mpsc::channel();
+        let mut app = Self {
+            bars: Vec::new(),
+            algorithm,
+            num_bars,
+            sorting: false,
+            tx,
+            rx,
+        };
+        app.reset_bars();
+        app
+    }
 }
 
 impl eframe::App for SortVisualizerApp {
@@ -62,7 +77,7 @@ impl eframe::App for SortVisualizerApp {
         self.handle_ops();
 
         egui::TopBottomPanel::top("top").show(ctx, |ui| {
-            ui.heading("Sorthos - Bar Visualization");
+            ui.heading("Sorthos");
         });
 
         egui::SidePanel::left("side").show(ctx, |ui| {

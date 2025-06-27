@@ -68,26 +68,6 @@ impl GifHandler {
         Ok(())
     }
 
-    pub fn load_gif_from_file(
-        &mut self,
-        ctx: &egui::Context,
-        path: &Path,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        // Try to read the file
-        match std::fs::read(path) {
-            Ok(bytes) => {
-                let name = path.file_stem()
-                    .and_then(|s| s.to_str())
-                    .unwrap_or("unknown");
-                self.load_gif_from_bytes(ctx, &bytes, name)
-            }
-            Err(e) => {
-                // If file doesn't exist, return error
-                Err(Box::new(e))
-            }
-        }
-    }
-
     pub fn update(&mut self, delta_time: f32) {
         if !self.frames.is_empty() {
             self.elapsed += delta_time;
