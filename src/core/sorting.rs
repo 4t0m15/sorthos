@@ -188,7 +188,7 @@ fn quick_sort(bars: &mut Vec<SortBar>, low: usize, high: usize, tx: &mpsc::Sende
 
 fn partition(bars: &mut Vec<SortBar>, low: usize, high: usize, tx: &mpsc::Sender<Operation>) -> usize {
     let pivot = bars[high].value;
-    let mut i = low;
+    let mut i: usize = low;
 
     for j in low..high {
         let _ = tx.send(Operation::Compare(j, high));
