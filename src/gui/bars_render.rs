@@ -99,7 +99,7 @@ impl eframe::App for SortVisualizerApp {
             });
 
             ui.add(
-                Slider::new(&mut self.num_bars, 16..=512)
+                Slider::new(&mut self.num_bars, 16..=315)
                     .text("bars"),
             )
             .on_hover_text("Change number of bars");

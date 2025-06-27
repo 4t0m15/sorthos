@@ -1,5 +1,4 @@
 use eframe::egui;
-use std::path::Path;
 use std::time::Duration;
 
 /// A single animation frame with its texture and display duration.

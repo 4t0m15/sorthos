@@ -139,7 +139,8 @@ impl eframe::App for SorthosApp {
                 }
             });
             ui.separator();
-            ui.selectable_label(matches!(self.selected_algorithm, SortingAlgorithm::Duck), "Duck").clicked().then(|| self.selected_algorithm = SortingAlgorithm::Duck);
+            ui.selectable_label(self.selected_algorithm == SortingAlgorithm::About, "Sort").clicked().then(|| self.selected_algorithm = SortingAlgorithm::About);
+            ui.selectable_label(self.selected_algorithm == SortingAlgorithm::Duck, "Duck").clicked().then(|| self.selected_algorithm = SortingAlgorithm::Duck);
         });
         if self.selected_algorithm == SortingAlgorithm::About {
             // Delegate full UI drawing to sort_app
