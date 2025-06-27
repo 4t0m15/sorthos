@@ -4,6 +4,7 @@ use eframe::egui::{self, Color32, Slider};
 use rand::seq::SliceRandom;
 use std::sync::mpsc;
 use crate::gui_backend::gui::Theme;
+use crate::gui::check_theme_consistancy::ensure_theme_consistency;
 
 pub struct SortVisualizerApp {
     bars: Vec<SortBar>,
@@ -38,7 +39,9 @@ impl SortVisualizerApp {
         }
         self.sorting = true;
         let algo = self.algorithm;
-        let bars_clone = self.bars.clone();
+        // Clone and enforce correct bar colors before starting
+        let mut bars_clone = self.bars.clone();
+        ensure_theme_consistency(&mut bars_clone, self.current_theme);
         let tx = self.tx.clone();
         start_sort(algo, bars_clone, tx);
     }
@@ -56,7 +59,12 @@ impl SortVisualizerApp {
                     self.bars[j].color = Color32::GREEN;
                 }
                 Operation::SetColor(i, col) => {
-                    self.bars[i].color = col;
+                    // remap "WHITE reset" to your theme’s default background color
+                    let default = match self.current_theme {
+                        Theme::Light => Color32::BLACK,
+                        Theme::Dark  => Color32::WHITE,
+                    };
+                    self.bars[i].color = if col == Color32::WHITE { default } else { col };
                 }
                 Operation::Done => {
                     self.sorting = false;
