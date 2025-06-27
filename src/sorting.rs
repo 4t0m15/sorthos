@@ -34,12 +34,13 @@ pub enum Operation {
 
 pub fn start_sort(algorithm: SortingAlgorithm, mut bars: Vec<SortBar>, tx: mpsc::Sender<Operation>) {
     thread::spawn(move || {
+        let len = bars.len();
         match algorithm {
             SortingAlgorithm::Bubble => bubble_sort(&mut bars, &tx),
             SortingAlgorithm::Selection => selection_sort(&mut bars, &tx),
             SortingAlgorithm::Insertion => insertion_sort(&mut bars, &tx),
-            SortingAlgorithm::Quick => quick_sort(&mut bars, 0, bars.len().saturating_sub(1), &tx),
-            SortingAlgorithm::Merge => merge_sort(&mut bars, 0, bars.len().saturating_sub(1), &tx),
+            SortingAlgorithm::Quick => quick_sort(&mut bars, 0, len.saturating_sub(1), &tx),
+            SortingAlgorithm::Merge => merge_sort(&mut bars, 0, len.saturating_sub(1), &tx),
         }
         let _ = tx.send(Operation::Done);
     });

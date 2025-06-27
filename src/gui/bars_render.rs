@@ -3,7 +3,6 @@ use crate::sorting::{start_sort, Operation, SortingAlgorithm};
 use eframe::egui::{self, Color32, Slider};
 use rand::seq::SliceRandom;
 use std::sync::mpsc;
-use std::thread;
 
 pub struct SortVisualizerApp {
     bars: Vec<SortBar>,
@@ -12,27 +11,9 @@ pub struct SortVisualizerApp {
     sorting: bool,
     rx: mpsc::Receiver<Operation>,
     tx: mpsc::Sender<Operation>,
-    draw_circle: bool,
 }
 
 impl SortVisualizerApp {
-    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        let (tx, rx) = mpsc::channel();
-        let mut app = Self {
-            bars: Vec::new(),
-            algorithm: SortingAlgorithm::Bubble,
-            num_bars: 128,
-            sorting: false,
-            tx,
-            rx,
-            draw_circle: false,
-        };
-        app.reset_bars();
-        cc.egui_ctx.set_visuals(egui::Visuals::dark());
-        cc.egui_ctx.request_repaint(); // continuous repaint
-        app
-    }
-
     fn reset_bars(&mut self) {
         self.bars = (0..self.num_bars).map(SortBar::new).collect();
     }
@@ -104,15 +85,12 @@ impl eframe::App for SortVisualizerApp {
 
             ui.add(
                 Slider::new(&mut self.num_bars, 16..=512)
-                    .text("bars")
-                    .clamp_to_range(true),
+                    .text("bars"),
             )
             .on_hover_text("Change number of bars");
             if ui.button("Reset").clicked() && !self.sorting {
                 self.reset_bars();
             }
-
-            ui.checkbox(&mut self.draw_circle, "Circle style");
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -126,26 +104,14 @@ impl eframe::App for SortVisualizerApp {
                 let h = rect.height() * (bar.value as f32 + 1.0) / n;
                 let y = rect.bottom() - h;
 
-                if self.draw_circle {
-                    // For demonstration, still using filled rectangles
-                    painter.rect_filled(
-                        egui::Rect::from_min_size(
-                            egui::pos2(x, y),
-                            egui::vec2(bar_w - 1.0, h),
-                        ),
-                        0.0,
-                        bar.color,
-                    );
-                } else {
-                    painter.rect_filled(
-                        egui::Rect::from_min_size(
-                            egui::pos2(x, y),
-                            egui::vec2(bar_w - 1.0, h),
-                        ),
-                        0.0,
-                        bar.color,
-                    );
-                }
+                painter.rect_filled(
+                    egui::Rect::from_min_size(
+                        egui::pos2(x, y),
+                        egui::vec2(bar_w - 1.0, h),
+                    ),
+                    0.0,
+                    bar.color,
+                );
             }
         });
 
@@ -154,16 +120,4 @@ impl eframe::App for SortVisualizerApp {
             ctx.request_repaint_after(std::time::Duration::from_millis(16));
         }
     }
-}
-
-pub fn run_sort_visualizer() -> Result<(), eframe::Error> {
-    let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([800.0, 600.0]),
-        ..Default::default()
-    };
-    eframe::run_native(
-        "Sorthos - Sorting Algorithm Visualizer",
-        options,
-        Box::new(|cc| Ok(Box::new(SortVisualizerApp::new(cc)) as Box<dyn eframe::App>)),
-    )
 }
