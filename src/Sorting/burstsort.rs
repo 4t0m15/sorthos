@@ -65,18 +65,19 @@ fn quick_sort_helper(mut arr: Vec<i32>) -> Vec<i32> {
         return arr;
     }
     
-    let pivot = arr.len() / 2;
+    let len = arr.len();
+    let pivot = len / 2;
     let pivot_val = arr[pivot];
-    arr.swap(pivot, arr.len() - 1);
+    arr.swap(pivot, len - 1);
     
     let mut i = 0;
-    for j in 0..arr.len() - 1 {
+    for j in 0..len - 1 {
         if arr[j] <= pivot_val {
             arr.swap(i, j);
             i += 1;
         }
     }
-    arr.swap(i, arr.len() - 1);
+    arr.swap(i, len - 1);
     
     let mut left = arr[0..i].to_vec();
     let mut right = arr[i + 1..].to_vec();

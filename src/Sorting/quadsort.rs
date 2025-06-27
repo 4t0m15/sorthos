@@ -5,7 +5,8 @@ pub fn quad_sort(mut arr: Vec<i32>) -> Vec<i32> {
         return arr;
     }
     
-    quad_sort_recursive(&mut arr, 0, arr.len());
+    let len = arr.len();
+    quad_sort_recursive(&mut arr, 0, len);
     arr
 }
 

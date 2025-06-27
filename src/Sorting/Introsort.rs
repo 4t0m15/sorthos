@@ -5,8 +5,9 @@ pub fn introsort(mut arr: Vec<i32>) -> Vec<i32> {
         return arr;
     }
     
-    let max_depth = (arr.len() as f64).log2().floor() as usize * 2;
-    introsort_util(&mut arr, 0, arr.len(), max_depth);
+    let len = arr.len();
+    let max_depth = (len as f64).log2().floor() as usize * 2;
+    introsort_util(&mut arr, 0, len, max_depth);
     arr
 }
 

@@ -68,7 +68,7 @@ pub fn spaghetti_sort_optimized(arr: Vec<i32>) -> Vec<i32> {
     let min_val = *arr.iter().min().unwrap();
     let offset = if min_val < 0 { -min_val } else { 0 };
     
-    let mut positive_arr: Vec<i32> = arr.iter().map(|x| x + offset).collect();
+    let positive_arr: Vec<i32> = arr.iter().map(|x| x + offset).collect();
     let max_val = *positive_arr.iter().max().unwrap();
     
     if max_val == 0 {
