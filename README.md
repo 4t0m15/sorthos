@@ -59,14 +59,7 @@ These algorithms are used in real programming languages and systems:
 - **Description**: Hybrid merge sort + insertion sort designed for real-world data with existing runs
 - **Note**: Replaced by Powersort in Python 3.11 due to improved merge policy
 
-#### **Introsort (Introspective Sort)**
-- **File**: `src/Sorting/Introsort.rs`
-- **Status**: ✅ Functional
-- **Stability**: Unstable
-- **Complexity**: O(n log n) guaranteed worst case
-- **Used In**: C++ STL, GNU libstdc++, LLVM libc++
-- **Description**: Hybrid quicksort + heapsort + insertion sort, switches to heapsort when recursion depth exceeds log n
-- **Advantage**: Combines quicksort's average-case speed with heapsort's worst-case guarantee
+
 
 #### **Heapsort**
 - **File**: `src/Sorting/heap_sort_visual.rs`
@@ -125,20 +118,9 @@ These algorithms are used in real programming languages and systems:
 
 ### Advanced Research Algorithms
 
-#### **Quad Sort**
-- **File**: `src/Sorting/quadsort.rs`
-- **Status**: ✅ Functional
-- **Stability**: Stable
-- **Complexity**: O(n log n)
-- **Description**: Modern algorithm that partitions into 4 parts instead of 2
-- **Research**: Developed as improvement over traditional divide-and-conquer approaches
 
-#### **Burst Sort**
-- **File**: `src/Sorting/burstsort.rs`
-- **Status**: ✅ Functional
-- **Stability**: Depends on implementation
-- **Complexity**: O(n + k) for small ranges, O(n log n) for large ranges
-- **Description**: Hybrid algorithm combining counting sort and quicksort based on data characteristics
+
+
 
 ### Educational Algorithms
 
@@ -188,31 +170,7 @@ These algorithms are primarily used for teaching algorithmic concepts:
 
 ### Specialized and Novelty Algorithms
 
-#### **Spaghetti Sort (Gravity Sort)**
-- **File**: `src/Sorting/spaghettisort.rs`
-- **Status**: ✅ Functional (both standard and optimized versions)
-- **Stability**: Stable
-- **Complexity**: O(n × max_value) standard, O(n + k) optimized
-- **Description**: Simulates physical gravity to sort positive integers
-- **Educational Value**: Demonstrates non-comparison sorting using physical analogies
 
-#### **Stooge Sort**
-- **File**: `src/core/sorting.rs`
-- **Status**: ✅ Functional
-- **Stability**: Unstable
-- **Complexity**: O(n^2.7) - extremely inefficient
-- **Description**: Recursive algorithm with unique 2/3 partitioning
-- **Educational Value**: Example of how not to design recursive algorithms
-
-#### **Slow Sort**
-- **File**: `src/core/sorting.rs`
-- **Status**: ✅ Functional
-- **Stability**: Unstable
-- **Complexity**: O(n^(log n)) - among the slowest possible
-- **Description**: Intentionally inefficient algorithm demonstrating worst-case design
-- **Educational Value**: Shows how recursive calls can lead to extreme inefficiency
-
-### Probabilistic Algorithms
 
 #### **Bogo Sort**
 - **File**: `src/core/sorting.rs`
@@ -222,13 +180,7 @@ These algorithms are primarily used for teaching algorithmic concepts:
 - **Description**: Randomly shuffles array until sorted
 - **Educational Value**: Demonstrates the importance of algorithmic design vs. random approaches
 
-#### **Bozo Sort**
-- **File**: `src/core/sorting.rs`
-- **Status**: ✅ Functional (small arrays only)
-- **Stability**: Not guaranteed
-- **Complexity**: O(n!) expected
-- **Description**: Makes random swaps until array is sorted
-- **Educational Value**: Shows probabilistic approach to sorting
+
 
 ## Algorithm Categories by Practical Usage
 
@@ -249,8 +201,7 @@ These algorithms are primarily used for teaching algorithmic concepts:
 - **Stooge/Slow/Bogo Sort**: Demonstrating algorithmic complexity
 
 ### **Research and Experimental**
-- **Quad Sort**: Modern improvements to traditional approaches
-- **Burst Sort**: Adaptive hybrid strategies
+
 
 ## Performance and Stability Analysis
 
@@ -282,8 +233,6 @@ These algorithms are primarily used for teaching algorithmic concepts:
 - **Java**: Timsort for objects, dual-pivot quicksort for primitives
 - **C++**: Introsort in most standard library implementations
 - **JavaScript V8**: Timsort
-- **Swift**: Introsort variant
-- **Rust**: Introsort (pattern-defeating quicksort)
 
 ## Testing and Quality Assurance
 
@@ -316,7 +265,6 @@ sorthos/
 ├── src/
 │   ├── Sorting/           # Individual algorithm implementations
 │   │   ├── timsort.rs     # Production-grade algorithms
-│   │   ├── Introsort.rs
 │   │   ├── counting_sort_visual.rs
 │   │   ├── radix_sort_visual.rs
 │   │   ├── bubble_sort.rs  # Educational algorithms

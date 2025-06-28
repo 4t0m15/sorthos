@@ -72,7 +72,6 @@ impl Sorthos {
         ui.separator();
         ui.label("Production-Grade Algorithms");
         ui.label("- Timsort: O(n log n) worst case, O(n) best case (adaptive), Stable");
-        ui.label("- Introsort: O(n log n) guaranteed worst case, Unstable");
         ui.label("- Heapsort: O(n log n) all cases, Unstable");
         ui.label("- Merge Sort: O(n log n) all cases, Stable");
         ui.label("- Quicksort: O(n log n) average, O(n²) worst case, Unstable");
@@ -85,8 +84,6 @@ impl Sorthos {
 
         ui.separator();
         ui.label("Advanced Research Algorithms");
-        ui.label("- Quad Sort: O(n log n), Stable");
-        ui.label("- Burst Sort: O(n + k) for small ranges, O(n log n) for large ranges, Stability depends on implementation");
 
         ui.separator();
         ui.label("Educational Algorithms");
@@ -100,14 +97,10 @@ impl Sorthos {
 
         ui.separator();
         ui.label("Specialized and Novelty Algorithms");
-        ui.label("- Spaghetti Sort: O(n × max_value) standard, O(n + k) optimized, Stable");
-        ui.label("- Stooge Sort: O(n^2.7), Unstable");
-        ui.label("- Slow Sort: O(n^(log n)), Unstable");
 
         ui.separator();
         ui.label("Probabilistic Algorithms");
         ui.label("- Bogo Sort: O((n+1)!) worst case, O(n) best case, Not guaranteed to terminate");
-        ui.label("- Bozo Sort: O(n!) expected, Not guaranteed to terminate");
     }
 
     fn show_duck_page(&mut self, ui: &mut egui::Ui) {

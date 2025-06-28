@@ -1,7 +1,6 @@
 #[path = "../Sorting/bubble_sort.rs"]
 mod bubble_sort;
-#[path = "../Sorting/burstsort.rs"]
-mod burstsort;
+
 #[path = "../Sorting/cocktail_sort_visual.rs"]
 mod cocktail_sort_visual;
 #[path = "../Sorting/counting_sort_visual.rs"]
@@ -12,12 +11,10 @@ mod gnome_sort_visual;
 mod heap_sort_visual;
 #[path = "../Sorting/insertion_sort.rs"]
 mod insertion_sort;
-#[path = "../Sorting/Introsort.rs"]
-mod introsort;
+
 #[path = "../Sorting/merge_sort_visual.rs"]
 mod merge_sort_visual;
-#[path = "../Sorting/quadsort.rs"]
-mod quadsort;
+
 #[path = "../Sorting/quicksort_visual.rs"]
 mod quicksort_visual;
 #[path = "../Sorting/radix_sort_visual.rs"]
@@ -28,31 +25,29 @@ mod selection_sort;
 mod shell_sort_visual;
 #[path = "../Sorting/sort_utils.rs"]
 mod sort_utils;
-#[path = "../Sorting/spaghettisort.rs"]
-mod spaghettisort;
+
 #[path = "../Sorting/timsort.rs"]
 mod timsort;
 
 use crate::models::SortBar;
 pub use bubble_sort::bubble_sort;
-pub use burstsort::burst_sort;
+
 pub use cocktail_sort_visual::cocktail_sort_visual;
 pub use counting_sort_visual::counting_sort_visual;
 use eframe::egui::Color32;
 pub use gnome_sort_visual::gnome_sort_visual;
 pub use heap_sort_visual::heap_sort_visual;
 pub use insertion_sort::insertion_sort;
-pub use introsort::introsort;
+
 pub use merge_sort_visual::merge_sort_visual;
-pub use quadsort::quad_sort;
+
 pub use quicksort_visual::quick_sort_visual;
 pub use radix_sort_visual::radix_sort_visual;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 pub use selection_sort::selection_sort;
 pub use shell_sort_visual::shell_sort_visual;
-pub use spaghettisort::spaghetti_sort;
-pub use spaghettisort::spaghetti_sort_optimized;
+
 use std::fmt;
 use std::sync::mpsc;
 use std::thread;
@@ -73,18 +68,10 @@ pub enum SortingAlgorithm {
     ShellSort,
     CocktailSort,
     GnomeSort,
-    Burst,
-    Intro,
-    Quad,
 
-    Spaghetti,
-    SpaghettiOpt,
     TimSort,
     BlockMergeSort,
     BogoSort,
-    BozoSort,
-    StoogeSort,
-    SlowSort,
 }
 
 impl SortingAlgorithm {
@@ -101,17 +88,9 @@ impl SortingAlgorithm {
             SortingAlgorithm::ShellSort,
             SortingAlgorithm::CocktailSort,
             SortingAlgorithm::GnomeSort,
-            SortingAlgorithm::Burst,
-            SortingAlgorithm::Intro,
-            SortingAlgorithm::Quad,
-            SortingAlgorithm::Spaghetti,
-            SortingAlgorithm::SpaghettiOpt,
             SortingAlgorithm::TimSort,
             SortingAlgorithm::BlockMergeSort,
             SortingAlgorithm::BogoSort,
-            SortingAlgorithm::BozoSort,
-            SortingAlgorithm::StoogeSort,
-            SortingAlgorithm::SlowSort,
         ]
     }
 }
@@ -130,18 +109,10 @@ impl fmt::Display for SortingAlgorithm {
             SortingAlgorithm::ShellSort => "Shell Sort",
             SortingAlgorithm::CocktailSort => "Cocktail Sort",
             SortingAlgorithm::GnomeSort => "Gnome Sort",
-            SortingAlgorithm::Burst => "Burst Sort",
-            SortingAlgorithm::Intro => "Intro Sort",
-            SortingAlgorithm::Quad => "Quad Sort",
 
-            SortingAlgorithm::Spaghetti => "Spaghetti Sort",
-            SortingAlgorithm::SpaghettiOpt => "Spaghetti Sort (Optimized)",
             SortingAlgorithm::TimSort => "Tim Sort",
             SortingAlgorithm::BlockMergeSort => "Block Merge Sort",
             SortingAlgorithm::BogoSort => "Bogo Sort",
-            SortingAlgorithm::BozoSort => "Bozo Sort",
-            SortingAlgorithm::StoogeSort => "Stooge Sort",
-            SortingAlgorithm::SlowSort => "Slow Sort",
         };
         write!(f, "{}", name)
     }
@@ -194,47 +165,7 @@ pub fn start_sort(
             SortingAlgorithm::ShellSort => shell_sort_visual(&mut bars, &tx),
             SortingAlgorithm::CocktailSort => cocktail_sort_visual(&mut bars, &tx),
             SortingAlgorithm::GnomeSort => gnome_sort_visual(&mut bars, &tx),
-            SortingAlgorithm::Burst => {
-                let values: Vec<i32> = bars.iter().map(|b| b.value as i32).collect();
-                let sorted = burst_sort(values);
-                for (i, val) in sorted.into_iter().enumerate().take(bars.len()) {
-                    bars[i].value = val as usize;
-                    let _ = tx.send(Operation::SetColor(i, Color32::WHITE));
-                }
-            }
-            SortingAlgorithm::Intro => {
-                let values: Vec<i32> = bars.iter().map(|b| b.value as i32).collect();
-                let sorted = introsort(values);
-                for (i, val) in sorted.into_iter().enumerate().take(bars.len()) {
-                    bars[i].value = val as usize;
-                    let _ = tx.send(Operation::SetColor(i, Color32::WHITE));
-                }
-            }
-            SortingAlgorithm::Quad => {
-                let values: Vec<i32> = bars.iter().map(|b| b.value as i32).collect();
-                let sorted = quad_sort(values);
-                for (i, val) in sorted.into_iter().enumerate().take(bars.len()) {
-                    bars[i].value = val as usize;
-                    let _ = tx.send(Operation::SetColor(i, Color32::WHITE));
-                }
-            }
 
-            SortingAlgorithm::Spaghetti => {
-                let values: Vec<i32> = bars.iter().map(|b| b.value as i32).collect();
-                let sorted = spaghetti_sort(values);
-                for (i, val) in sorted.into_iter().enumerate().take(bars.len()) {
-                    bars[i].value = val as usize;
-                    let _ = tx.send(Operation::SetColor(i, Color32::WHITE));
-                }
-            }
-            SortingAlgorithm::SpaghettiOpt => {
-                let values: Vec<i32> = bars.iter().map(|b| b.value as i32).collect();
-                let sorted = spaghetti_sort_optimized(values);
-                for (i, val) in sorted.into_iter().enumerate().take(bars.len()) {
-                    bars[i].value = val as usize;
-                    let _ = tx.send(Operation::SetColor(i, Color32::WHITE));
-                }
-            }
             SortingAlgorithm::TimSort => {
                 tim_sort(&mut bars, &tx);
             }
@@ -243,15 +174,6 @@ pub fn start_sort(
             }
             SortingAlgorithm::BogoSort => {
                 bogo_sort(&mut bars, &tx);
-            }
-            SortingAlgorithm::BozoSort => {
-                bozo_sort(&mut bars, &tx);
-            }
-            SortingAlgorithm::StoogeSort => {
-                stooge_sort(&mut bars, &tx);
-            }
-            SortingAlgorithm::SlowSort => {
-                slow_sort(&mut bars, &tx);
             }
         }
         let _ = tx.send(Operation::Done);
@@ -331,66 +253,35 @@ pub fn block_merge_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {
 
 // ---------- Bogo Sort ----------
 pub fn bogo_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {
+    use std::time::Duration;
     let mut rng = thread_rng();
-    let mut values: Vec<usize> = bars.iter().map(|b| b.value).collect();
-    while !is_sorted(&values) {
-        values.shuffle(&mut rng);
-    }
-    copy_values_to_bars(bars, &values, tx);
-}
+    let len = bars.len();
 
-// ---------- Bozo Sort ----------
-pub fn bozo_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {
-    let mut rng = thread_rng();
-    let mut values: Vec<usize> = bars.iter().map(|b| b.value).collect();
-    while !is_sorted(&values) {
-        let i = rng.gen_range(0..values.len());
-        let j = rng.gen_range(0..values.len());
-        values.swap(i, j);
+    fn bars_are_sorted(bars: &[SortBar]) -> bool {
+        bars.windows(2).all(|w| w[0].value <= w[1].value)
     }
-    copy_values_to_bars(bars, &values, tx);
-}
 
-// ---------- Stooge Sort ----------
-fn stooge_sort_recursive(slice: &mut [usize]) {
-    let n = slice.len();
-    if n <= 1 {
-        return;
+    while !bars_are_sorted(bars) {
+        // Fisher-Yates shuffle with visual feedback
+        for i in (1..len).rev() {
+            let j = rng.gen_range(0..=i);
+            if i != j {
+                bars.swap(i, j);
+                let _ = tx.send(Operation::Swap(i, j));
+                let _ = tx.send(Operation::SetColor(i, Color32::YELLOW));
+                let _ = tx.send(Operation::SetColor(j, Color32::YELLOW));
+                thread::sleep(Duration::from_millis(15));
+                let _ = tx.send(Operation::SetColor(i, Color32::WHITE));
+                let _ = tx.send(Operation::SetColor(j, Color32::WHITE));
+            }
+        }
+        thread::sleep(Duration::from_millis(60));
     }
-    if slice[n - 1] < slice[0] {
-        slice.swap(0, n - 1);
-    }
-    if n > 2 {
-        let t = n / 3;
-        stooge_sort_recursive(&mut slice[..n - t]);
-        stooge_sort_recursive(&mut slice[t..]);
-        stooge_sort_recursive(&mut slice[..n - t]);
+
+    // Final sorted state
+    for i in 0..len {
+        let _ = tx.send(Operation::SetColor(i, Color32::WHITE));
     }
 }
 
-pub fn stooge_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {
-    let mut values: Vec<usize> = bars.iter().map(|b| b.value).collect();
-    stooge_sort_recursive(&mut values);
-    copy_values_to_bars(bars, &values, tx);
-}
-
-// ---------- Slow Sort ----------
-fn slow_sort_recursive(slice: &mut [usize]) {
-    let n = slice.len();
-    if n <= 1 {
-        return;
-    }
-    let m = n / 2;
-    slow_sort_recursive(&mut slice[..m]);
-    slow_sort_recursive(&mut slice[m..]);
-    if slice[m - 1] > slice[n - 1] {
-        slice.swap(m - 1, n - 1);
-    }
-    slow_sort_recursive(&mut slice[..n - 1]);
-}
-
-pub fn slow_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {
-    let mut values: Vec<usize> = bars.iter().map(|b| b.value).collect();
-    slow_sort_recursive(&mut values);
-    copy_values_to_bars(bars, &values, tx);
-}
+// (Removed Bozo Sort, Stooge Sort, and Slow Sort implementations)
