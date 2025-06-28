@@ -1,3 +1,4 @@
+mod code;
 #[path = "gif/gif_handler.rs"]
 mod gif_handler;
 mod gui;

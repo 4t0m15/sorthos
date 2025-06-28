@@ -37,6 +37,7 @@ pub struct Sorthos {
     theme: Theme,
     duck_gif: GifHandler,
     sort_app: SortVisualizerApp,
+    max_speed: bool,
 }
 
 impl Default for Sorthos {
@@ -46,6 +47,7 @@ impl Default for Sorthos {
             theme: Theme::default(),
             duck_gif: GifHandler::default(),
             sort_app: SortVisualizerApp::new(100, crate::sorting::SortingAlgorithm::QuickVisual),
+            max_speed: false,
         }
     }
 }
@@ -201,7 +203,20 @@ pub fn toggle(on: &mut bool) -> impl egui::Widget + '_ {
 impl eframe::App for Sorthos {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         ctx.set_style(self.theme.default_style());
-        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| ui.heading("Sorthos"));
+        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            ui.horizontal(|ui| {
+                ui.heading("Sorthos");
+                ui.separator();
+                let mut max_speed = self.max_speed;
+                let toggle_resp = ui.add_enabled(
+                    !self.sort_app.sorting,
+                    egui::widgets::Checkbox::new(&mut max_speed, "Max Speed"),
+                );
+                if toggle_resp.changed() {
+                    self.max_speed = max_speed;
+                }
+            });
+        });
         egui::SidePanel::left("algorithm_selector").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.heading("Dark/Light");
@@ -261,7 +276,7 @@ impl eframe::App for Sorthos {
                     }
                     ui.separator();
                     if ui.button("Sort").clicked() && !self.sort_app.sorting {
-                        self.sort_app.start_sorting();
+                        self.sort_app.start_sorting(self.max_speed);
                     }
                 });
                 self.sort_app.update(ctx, frame);

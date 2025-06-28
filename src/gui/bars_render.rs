@@ -7,12 +7,12 @@ use rand::seq::SliceRandom;
 use std::sync::mpsc;
 
 pub struct SortVisualizerApp {
-    bars: Vec<SortBar>,
+    pub bars: Vec<SortBar>,
     pub algorithm: SortingAlgorithm,
     pub num_bars: usize,
     pub sorting: bool,
     rx: mpsc::Receiver<Operation>,
-    tx: mpsc::Sender<Operation>,
+    pub tx: mpsc::Sender<Operation>,
     current_theme: Theme,
     pub status_message: String,
 }
@@ -120,19 +120,23 @@ impl SortVisualizerApp {
         self.status_message = format!("Generated array with {} duplicates", duplicate_count);
     }
 
-    pub fn start_sorting(&mut self) {
+    pub fn start_sorting(&mut self, max_speed: bool) {
         if self.sorting {
             return;
         }
         self.sorting = true;
-        let algo = self.algorithm;
         // Ensure displayed bars have the correct colors before sorting
         apply_theme_consistency(&mut self.bars, self.current_theme);
         // Clone and enforce correct bar colors before starting
         let mut bars_clone = self.bars.clone();
         apply_theme_consistency(&mut bars_clone, self.current_theme);
         let tx = self.tx.clone();
-        start_sort(algo, bars_clone, tx);
+        if max_speed {
+            crate::code::speed::max_speed_sort(&mut bars_clone, tx);
+        } else {
+            let algo = self.algorithm;
+            start_sort(algo, bars_clone, tx);
+        }
     }
 
     fn handle_ops(&mut self) {
