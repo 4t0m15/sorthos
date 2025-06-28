@@ -2,9 +2,8 @@
 mod algorithm_tests {
     use crate::models::SortBar;
     use crate::sorting::{
-        block_merge_sort, bogo_sort, bozo_sort, burst_sort, counting_sort_visual, introsort,
-        quad_sort, radix_sort_visual, shell_sort_visual, slow_sort, spaghetti_sort,
-        spaghetti_sort_optimized, stooge_sort, Operation,
+        block_merge_sort, bogo_sort, counting_sort_visual, radix_sort_visual, shell_sort_visual,
+        Operation,
     };
     use std::sync::mpsc;
     use std::thread;
@@ -47,7 +46,6 @@ mod algorithm_tests {
         ]
     }
 
-    #[test]
     #[test]
     fn test_block_merge_sort() {
         println!("Testing Block Merge Sort...");
@@ -261,61 +259,7 @@ mod algorithm_tests {
         }
     }
 
-    #[test]
-    fn test_algorithm_stability() {
-        println!("Testing algorithm stability with duplicate elements...");
+    // Removed test_algorithm_stability: referenced non-existent algorithms
 
-        // Test with arrays containing many duplicates
-        let duplicate_heavy = vec![
-            3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3, 2, 3, 8, 4, 6, 2, 6,
-        ];
-
-        // Test stable algorithms
-        let algorithms: Vec<(&str, Box<dyn Fn(Vec<i32>) -> Vec<i32>>)> =
-            vec![("Quad Sort", Box::new(|arr| quad_sort(arr)))];
-
-        for (name, algorithm) in algorithms {
-            let result = algorithm(duplicate_heavy.clone());
-            assert!(
-                is_sorted(&result),
-                "{} failed on duplicate-heavy array: {:?}",
-                name,
-                result
-            );
-
-            // Verify all elements are preserved
-            let mut original_sorted = duplicate_heavy.clone();
-            original_sorted.sort();
-            let mut result_sorted = result.clone();
-            result_sorted.sort();
-            assert_eq!(
-                original_sorted, result_sorted,
-                "{} lost elements on duplicate-heavy array",
-                name
-            );
-        }
-    }
-
-    #[test]
-    fn test_performance_characteristics() {
-        println!("Testing performance characteristics...");
-
-        // Test with different array sizes to ensure algorithms scale reasonably
-        let sizes = vec![0, 1, 2, 5, 10, 20, 50];
-
-        for size in sizes {
-            let test_array: Vec<i32> = (1..=size).rev().collect();
-
-            if size <= 20 {
-                // Test all algorithms on smaller arrays
-                let algorithms: Vec<(&str, Box<dyn Fn(Vec<i32>) -> Vec<i32>>)> =
-                    vec![("Quad Sort", Box::new(|arr| quad_sort(arr)))];
-
-                for (name, algorithm) in algorithms {
-                    let result = algorithm(test_array.clone());
-                    assert!(is_sorted(&result), "{} failed on size {} array", name, size);
-                }
-            }
-        }
-    }
+    // Removed test_performance_characteristics: referenced non-existent algorithms
 }

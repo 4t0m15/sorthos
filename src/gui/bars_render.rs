@@ -1,4 +1,4 @@
-use crate::gui::check_theme_consistancy::apply_theme_consistency;
+use crate::gui::check_theme_consistency::apply_theme_consistency;
 use crate::gui_backend::gui::Theme;
 use crate::models::SortBar;
 use crate::sorting::{start_sort, Operation, SortingAlgorithm};

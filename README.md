@@ -287,7 +287,7 @@ Contributions welcome!
 - Additional modern sorting algorithms
 - Performance optimizations
 - Visualization improvements
-- better docs
+
 - Parallel sorting algorithms
 
 ## License

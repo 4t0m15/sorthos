@@ -1,2 +1,2 @@
 pub mod bars_render;
-pub mod check_theme_consistancy;
+pub mod check_theme_consistency;
