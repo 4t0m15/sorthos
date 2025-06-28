@@ -122,8 +122,13 @@ impl SortVisualizerApp {
 
     pub fn start_sorting(&mut self, max_speed: bool) {
         if self.sorting {
+            println!("[DEBUG] Sorting already in progress, ignoring start_sorting call.");
             return;
         }
+        println!(
+            "[DEBUG] Starting sorting with algorithm: {:?}, max_speed: {}",
+            self.algorithm, max_speed
+        );
         self.sorting = true;
         // Ensure displayed bars have the correct colors before sorting
         apply_theme_consistency(&mut self.bars, self.current_theme);
@@ -132,24 +137,30 @@ impl SortVisualizerApp {
         apply_theme_consistency(&mut bars_clone, self.current_theme);
         let tx = self.tx.clone();
         if max_speed {
+            println!("[DEBUG] Calling max_speed_sort...");
             crate::code::speed::max_speed_sort(&mut bars_clone, tx);
         } else {
             let algo = self.algorithm;
+            println!("[DEBUG] Calling start_sort with algorithm: {:?}", algo);
             start_sort(algo, bars_clone, tx);
         }
     }
 
     fn handle_ops(&mut self) {
+        let mut op_count = 0;
         while let Ok(op) = self.rx.try_recv() {
-            match op {
+            op_count += 1;
+            match &op {
                 Operation::Compare(i, j) => {
-                    self.bars[i].color = Color32::YELLOW;
-                    self.bars[j].color = Color32::YELLOW;
+                    println!("[DEBUG] Operation::Compare({}, {})", i, j);
+                    self.bars[*i].color = Color32::YELLOW;
+                    self.bars[*j].color = Color32::YELLOW;
                 }
                 Operation::Swap(i, j) => {
-                    self.bars.swap(i, j);
-                    self.bars[i].color = Color32::GREEN;
-                    self.bars[j].color = Color32::GREEN;
+                    println!("[DEBUG] Operation::Swap({}, {})", i, j);
+                    self.bars.swap(*i, *j);
+                    self.bars[*i].color = Color32::GREEN;
+                    self.bars[*j].color = Color32::GREEN;
                 }
                 Operation::SetColor(i, col) => {
                     // remap "WHITE reset" to your theme’s default background color
@@ -157,12 +168,24 @@ impl SortVisualizerApp {
                         Theme::Light => Color32::BLACK,
                         Theme::Dark => Color32::WHITE,
                     };
-                    self.bars[i].color = if col == Color32::WHITE { default } else { col };
+                    println!("[DEBUG] Operation::SetColor({}, {:?})", i, col);
+                    self.bars[*i].color = if *col == Color32::WHITE {
+                        default
+                    } else {
+                        *col
+                    };
                 }
                 Operation::Done => {
+                    println!("[DEBUG] Operation::Done received, sorting finished.");
                     self.sorting = false;
                 }
             }
+        }
+        if op_count > 0 {
+            println!(
+                "[DEBUG] handle_ops processed {} operations this frame.",
+                op_count
+            );
         }
     }
 

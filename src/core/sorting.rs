@@ -54,7 +54,7 @@ use std::thread;
 use std::time::Duration;
 pub use timsort::tim_sort;
 
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SortingAlgorithm {
     #[default]
     Bubble,
@@ -144,39 +144,81 @@ pub fn start_sort(
     mut bars: Vec<SortBar>,
     tx: mpsc::Sender<Operation>,
 ) {
+    println!(
+        "[DEBUG] start_sort: Spawning thread for algorithm: {:?}",
+        algorithm
+    );
     thread::spawn(move || {
         let len = bars.len();
 
         // Handle edge cases - arrays with 0 or 1 elements are already sorted
         if len <= 1 {
             let _ = tx.send(Operation::Done);
+            println!("[DEBUG] start_sort: Array len <= 1, sending Done.");
             return;
         }
 
         match algorithm {
-            SortingAlgorithm::Bubble => bubble_sort(&mut bars, &tx),
-            SortingAlgorithm::Selection => selection_sort(&mut bars, &tx),
-            SortingAlgorithm::Insertion => insertion_sort(&mut bars, &tx),
-            SortingAlgorithm::QuickVisual => quick_sort_visual(&mut bars, &tx),
-            SortingAlgorithm::MergeSort => merge_sort_visual(&mut bars, &tx),
-            SortingAlgorithm::HeapSort => heap_sort_visual(&mut bars, &tx),
-            SortingAlgorithm::CountingSort => counting_sort_visual(&mut bars, &tx),
-            SortingAlgorithm::RadixSort => radix_sort_visual(&mut bars, &tx),
-            SortingAlgorithm::ShellSort => shell_sort_visual(&mut bars, &tx),
-            SortingAlgorithm::CocktailSort => cocktail_sort_visual(&mut bars, &tx),
-            SortingAlgorithm::GnomeSort => gnome_sort_visual(&mut bars, &tx),
+            SortingAlgorithm::Bubble => {
+                println!("[DEBUG] start_sort: Running bubble_sort");
+                bubble_sort(&mut bars, &tx)
+            }
+            SortingAlgorithm::Selection => {
+                println!("[DEBUG] start_sort: Running selection_sort");
+                selection_sort(&mut bars, &tx)
+            }
+            SortingAlgorithm::Insertion => {
+                println!("[DEBUG] start_sort: Running insertion_sort");
+                insertion_sort(&mut bars, &tx)
+            }
+            SortingAlgorithm::QuickVisual => {
+                println!("[DEBUG] start_sort: Running quick_sort_visual");
+                quick_sort_visual(&mut bars, &tx)
+            }
+            SortingAlgorithm::MergeSort => {
+                println!("[DEBUG] start_sort: Running merge_sort_visual");
+                merge_sort_visual(&mut bars, &tx)
+            }
+            SortingAlgorithm::HeapSort => {
+                println!("[DEBUG] start_sort: Running heap_sort_visual");
+                heap_sort_visual(&mut bars, &tx)
+            }
+            SortingAlgorithm::CountingSort => {
+                println!("[DEBUG] start_sort: Running counting_sort_visual");
+                counting_sort_visual(&mut bars, &tx)
+            }
+            SortingAlgorithm::RadixSort => {
+                println!("[DEBUG] start_sort: Running radix_sort_visual");
+                radix_sort_visual(&mut bars, &tx)
+            }
+            SortingAlgorithm::ShellSort => {
+                println!("[DEBUG] start_sort: Running shell_sort_visual");
+                shell_sort_visual(&mut bars, &tx)
+            }
+            SortingAlgorithm::CocktailSort => {
+                println!("[DEBUG] start_sort: Running cocktail_sort_visual");
+                cocktail_sort_visual(&mut bars, &tx)
+            }
+            SortingAlgorithm::GnomeSort => {
+                println!("[DEBUG] start_sort: Running gnome_sort_visual");
+                gnome_sort_visual(&mut bars, &tx)
+            }
 
             SortingAlgorithm::TimSort => {
+                println!("[DEBUG] start_sort: Running tim_sort");
                 tim_sort(&mut bars, &tx);
             }
             SortingAlgorithm::BlockMergeSort => {
+                println!("[DEBUG] start_sort: Running block_merge_sort");
                 block_merge_sort(&mut bars, &tx);
             }
             SortingAlgorithm::BogoSort => {
+                println!("[DEBUG] start_sort: Running bogo_sort");
                 bogo_sort(&mut bars, &tx);
             }
         }
         let _ = tx.send(Operation::Done);
+        println!("[DEBUG] start_sort: Sorting thread finished, sent Done.");
     });
 }
 
