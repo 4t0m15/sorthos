@@ -1,6 +1,6 @@
-use eframe::egui::{self, Style, Visuals, Sense, vec2, pos2};
 use crate::gif_handler::GifHandler;
 use crate::gui::bars_render::SortVisualizerApp;
+use eframe::egui::{self, pos2, vec2, Sense, Style, Visuals};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
 pub enum Theme {
@@ -16,7 +16,10 @@ impl Theme {
         }
     }
     pub fn default_style(self) -> Style {
-        Style { visuals: self.default_visuals(), ..Default::default() }
+        Style {
+            visuals: self.default_visuals(),
+            ..Default::default()
+        }
     }
 }
 
@@ -24,6 +27,7 @@ impl Theme {
 enum SortingAlgorithm {
     #[default]
     About,
+    Controls,
     Duck,
 }
 
@@ -40,7 +44,7 @@ impl Default for Sorthos {
             selected_algorithm: SortingAlgorithm::default(),
             theme: Theme::default(),
             duck_gif: GifHandler::default(),
-            sort_app: SortVisualizerApp::new(100, crate::sorting::SortingAlgorithm::Quick),
+            sort_app: SortVisualizerApp::new(100, crate::sorting::SortingAlgorithm::QuickVisual),
         }
     }
 }
@@ -49,7 +53,9 @@ impl Sorthos {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let mut app = Self::default();
         const DUCK_GIF: &[u8] = include_bytes!("../assets/spinning-duck.gif");
-        let _ = app.duck_gif.load_gif_from_bytes(&cc.egui_ctx, DUCK_GIF, "duck");
+        let _ = app
+            .duck_gif
+            .load_gif_from_bytes(&cc.egui_ctx, DUCK_GIF, "duck");
         app.sort_app.apply_theme(app.theme);
         app
     }
@@ -59,6 +65,55 @@ impl Sorthos {
         ui.vertical_centered(|ui| {
             self.duck_gif.render(ui, [128.0, 128.0]);
         });
+    }
+
+    fn show_controls_page(&mut self, ui: &mut egui::Ui) {
+        ui.heading("Sort Controls");
+        ui.separator();
+
+        // Title for the controls menu
+        ui.label("Controls:");
+
+        ui.horizontal(|ui| {
+            if ui.button("Shuffle").clicked() && !self.sort_app.sorting {
+                self.sort_app.shuffle_bars();
+            }
+        });
+
+        ui.horizontal(|ui| {
+            if ui.button("Remove Duplicates").clicked() && !self.sort_app.sorting {
+                self.sort_app.remove_duplicates();
+            }
+            if ui.button("Generate Duplicates").clicked() && !self.sort_app.sorting {
+                self.sort_app.generate_with_duplicates();
+            }
+        });
+
+        ui.horizontal(|ui| {
+            if ui.button("Reset").clicked() && !self.sort_app.sorting {
+                self.sort_app.reset_bars();
+            }
+        });
+
+        ui.add(egui::Slider::new(&mut self.sort_app.num_bars, 16..=315).text("bars"))
+            .on_hover_text("Change number of bars");
+
+        ui.separator();
+
+        // Status display
+        ui.label("Status:");
+        if !self.sort_app.status_message.is_empty() {
+            ui.label(&self.sort_app.status_message);
+        }
+        let duplicate_count = self.sort_app.count_duplicates();
+        if duplicate_count > 0 {
+            ui.colored_label(
+                egui::Color32::ORANGE,
+                format!("⚠ {} duplicates detected", duplicate_count),
+            );
+        } else {
+            ui.colored_label(egui::Color32::GREEN, "No duplicates");
+        }
     }
 }
 
@@ -77,10 +132,17 @@ fn toggle_ui(ui: &mut egui::Ui, on: &mut bool) -> egui::Response {
         let visuals = ui.style().interact_selectable(&response, *on);
         let rect = rect.expand(visuals.expansion);
         let radius = 0.5 * rect.height();
-        ui.painter().rect(rect, radius, visuals.bg_fill, visuals.bg_stroke, egui::StrokeKind::Inside);
+        ui.painter().rect(
+            rect,
+            radius,
+            visuals.bg_fill,
+            visuals.bg_stroke,
+            egui::StrokeKind::Inside,
+        );
         let circle_x = egui::lerp((rect.left() + radius)..=(rect.right() - radius), how_on);
         let center = pos2(circle_x, rect.center().y);
-        ui.painter().circle(center, 0.75 * radius, visuals.bg_fill, visuals.fg_stroke);
+        ui.painter()
+            .circle(center, 0.75 * radius, visuals.bg_fill, visuals.fg_stroke);
     }
     response
 }
@@ -104,16 +166,56 @@ impl eframe::App for Sorthos {
                 }
             });
             ui.separator();
-            if ui.selectable_label(self.selected_algorithm == SortingAlgorithm::About, "sorting").clicked() {
+            if ui
+                .selectable_label(
+                    self.selected_algorithm == SortingAlgorithm::About,
+                    "sorting",
+                )
+                .clicked()
+            {
                 self.selected_algorithm = SortingAlgorithm::About;
             }
-            if ui.selectable_label(self.selected_algorithm == SortingAlgorithm::Duck, "duck").clicked() {
+            if ui
+                .selectable_label(
+                    self.selected_algorithm == SortingAlgorithm::Controls,
+                    "controls",
+                )
+                .clicked()
+            {
+                self.selected_algorithm = SortingAlgorithm::Controls;
+            }
+            if ui
+                .selectable_label(self.selected_algorithm == SortingAlgorithm::Duck, "duck")
+                .clicked()
+            {
                 self.selected_algorithm = SortingAlgorithm::Duck;
             }
         });
         match self.selected_algorithm {
-            SortingAlgorithm::About => self.sort_app.update(ctx, frame),
-            SortingAlgorithm::Duck => { egui::CentralPanel::default().show(ctx, |ui| self.show_duck_page(ui)); },
+            SortingAlgorithm::About => {
+                egui::SidePanel::left("sorting_controls").show(ctx, |ui| {
+                    ui.label("Algorithm:");
+                    for &alg in crate::sorting::SortingAlgorithm::all() {
+                        if ui
+                            .selectable_label(self.sort_app.algorithm == alg, format!("{alg}"))
+                            .clicked()
+                        {
+                            self.sort_app.algorithm = alg;
+                        }
+                    }
+                    ui.separator();
+                    if ui.button("Sort").clicked() && !self.sort_app.sorting {
+                        self.sort_app.start_sorting();
+                    }
+                });
+                self.sort_app.update(ctx, frame);
+            }
+            SortingAlgorithm::Controls => {
+                egui::CentralPanel::default().show(ctx, |ui| self.show_controls_page(ui));
+            }
+            SortingAlgorithm::Duck => {
+                egui::CentralPanel::default().show(ctx, |ui| self.show_duck_page(ui));
+            }
         }
     }
 }

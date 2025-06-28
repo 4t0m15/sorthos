@@ -1,3 +1,4 @@
+use super::sort_utils::insertion_sort_range_visual;
 use crate::models::SortBar;
 use crate::sorting::Operation;
 use eframe::egui::Color32;
@@ -14,7 +15,7 @@ pub fn tim_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {
 
     // For small arrays, use insertion sort
     if n < MIN_MERGE {
-        insertion_sort_range(bars, 0, n, tx);
+        insertion_sort_range_visual(bars, 0, n, tx);
     } else {
         // For larger arrays, use a hybrid approach with insertion sort for small runs
         // and merge sort for combining them
@@ -24,7 +25,7 @@ pub fn tim_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {
         let mut left = 0;
         while left < n {
             let right = std::cmp::min(left + MIN_MERGE, n);
-            insertion_sort_range(bars, left, right, tx);
+            insertion_sort_range_visual(bars, left, right, tx);
             left = right;
         }
 
@@ -47,40 +48,6 @@ pub fn tim_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {
     // Paint all bars white when done
     for idx in 0..n {
         let _ = tx.send(Operation::SetColor(idx, Color32::WHITE));
-    }
-}
-
-fn insertion_sort_range(
-    bars: &mut Vec<SortBar>,
-    start: usize,
-    end: usize,
-    tx: &mpsc::Sender<Operation>,
-) {
-    for i in (start + 1)..end {
-        let mut j = i;
-
-        // Highlight the element being inserted
-        let _ = tx.send(Operation::SetColor(i, Color32::LIGHT_BLUE));
-        std::thread::sleep(Duration::from_millis(20));
-
-        while j > start {
-            // Highlight comparison
-            let _ = tx.send(Operation::Compare(j - 1, j));
-            std::thread::sleep(Duration::from_millis(10));
-
-            if bars[j - 1].value > bars[j].value {
-                // Swap and animate
-                let _ = tx.send(Operation::Swap(j - 1, j));
-                bars.swap(j - 1, j);
-                std::thread::sleep(Duration::from_millis(10));
-                j -= 1;
-            } else {
-                break;
-            }
-        }
-
-        // Reset color after insertion
-        let _ = tx.send(Operation::SetColor(j, Color32::WHITE));
     }
 }
 

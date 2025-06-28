@@ -353,4 +353,88 @@ mod tests {
             "All bars should be white"
         );
     }
+
+    /// Test TimSort functionality specifically
+    #[test]
+    fn test_timsort_functionality() {
+        use crate::sorting::{tim_sort, Operation};
+
+        let test_cases = vec![
+            vec![5, 2, 8, 1, 9, 3, 7, 4, 6],   // Random order
+            vec![9, 8, 7, 6, 5, 4, 3, 2, 1],   // Reverse sorted
+            vec![1, 2, 3, 4, 5, 6, 7, 8, 9],   // Already sorted
+            vec![5, 5, 5, 5, 5],               // All same values
+            vec![3, 1, 4, 1, 5, 9, 2, 6, 5],   // With duplicates
+            vec![42],                          // Single element
+            vec![2, 1],                        // Two elements
+            (0..50).rev().collect::<Vec<_>>(), // Larger array, reverse sorted
+            (0..50).collect::<Vec<_>>(),       // Larger array, already sorted
+        ];
+
+        for test_values in test_cases {
+            let original_values = test_values.clone();
+            let mut bars = create_bars(test_values);
+            let (tx, _rx) = mpsc::channel::<Operation>();
+
+            // Apply TimSort
+            tim_sort(&mut bars, &tx);
+
+            // Extract sorted values
+            let sorted_values = extract_values(&bars);
+
+            // Verify the array is sorted
+            assert!(
+                is_sorted(&sorted_values),
+                "TimSort failed to sort array: {:?} -> {:?}",
+                original_values,
+                sorted_values
+            );
+
+            // Verify all original elements are still present (no data loss)
+            let mut original_sorted = original_values.clone();
+            original_sorted.sort();
+            let mut result_sorted = sorted_values.clone();
+            result_sorted.sort();
+            assert_eq!(
+                original_sorted, result_sorted,
+                "TimSort lost or added elements: original {:?} -> result {:?}",
+                original_values, sorted_values
+            );
+        }
+    }
+
+    /// Test TimSort with edge cases
+    #[test]
+    fn test_timsort_edge_cases() {
+        use crate::sorting::{tim_sort, Operation};
+
+        // Test empty array
+        let mut empty_bars: Vec<SortBar> = vec![];
+        let (tx, _rx) = mpsc::channel::<Operation>();
+        tim_sort(&mut empty_bars, &tx);
+        assert!(empty_bars.is_empty(), "Empty array should remain empty");
+
+        // Test single element
+        let mut single_bars = create_bars(vec![42]);
+        tim_sort(&mut single_bars, &tx);
+        assert_eq!(
+            extract_values(&single_bars),
+            vec![42],
+            "Single element should be unchanged"
+        );
+
+        // Test array with MIN_MERGE size (32 elements)
+        let test_32: Vec<usize> = (0..32).rev().collect();
+        let mut bars_32 = create_bars(test_32.clone());
+        tim_sort(&mut bars_32, &tx);
+        let sorted_32 = extract_values(&bars_32);
+        assert!(is_sorted(&sorted_32), "32-element array should be sorted");
+
+        // Test array just above MIN_MERGE size (33 elements)
+        let test_33: Vec<usize> = (0..33).rev().collect();
+        let mut bars_33 = create_bars(test_33.clone());
+        tim_sort(&mut bars_33, &tx);
+        let sorted_33 = extract_values(&bars_33);
+        assert!(is_sorted(&sorted_33), "33-element array should be sorted");
+    }
 }

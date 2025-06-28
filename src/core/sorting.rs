@@ -18,8 +18,7 @@ mod introsort;
 mod merge_sort_visual;
 #[path = "../Sorting/quadsort.rs"]
 mod quadsort;
-#[path = "../Sorting/quicksort.rs"]
-mod quicksort_numeric;
+
 #[path = "../Sorting/quicksort_visual.rs"]
 mod quicksort_visual;
 #[path = "../Sorting/radix_sort_visual.rs"]
@@ -28,6 +27,8 @@ mod radix_sort_visual;
 mod selection_sort;
 #[path = "../Sorting/shell_sort_visual.rs"]
 mod shell_sort_visual;
+#[path = "../Sorting/sort_utils.rs"]
+mod sort_utils;
 #[path = "../Sorting/spaghettisort.rs"]
 mod spaghettisort;
 #[path = "../Sorting/timsort.rs"]
@@ -52,7 +53,7 @@ pub use insertion_sort::insertion_sort;
 pub use introsort::introsort;
 pub use merge_sort_visual::merge_sort_visual;
 pub use quadsort::quad_sort;
-pub use quicksort_numeric::quick_sort as quick_sort_numeric;
+
 pub use quicksort_visual::quick_sort_visual;
 pub use radix_sort_visual::radix_sort_visual;
 pub use selection_sort::selection_sort;
@@ -61,12 +62,12 @@ pub use spaghettisort::spaghetti_sort;
 pub use spaghettisort::spaghetti_sort_optimized;
 pub use timsort::tim_sort;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum SortingAlgorithm {
+    #[default]
     Bubble,
     Selection,
     Insertion,
-    Quick,
     QuickVisual,
     MergeSort,
     HeapSort,
@@ -78,7 +79,7 @@ pub enum SortingAlgorithm {
     Burst,
     Intro,
     Quad,
-    QuickNumeric,
+
     Spaghetti,
     SpaghettiOpt,
     TimSort,
@@ -95,7 +96,6 @@ impl SortingAlgorithm {
             SortingAlgorithm::Bubble,
             SortingAlgorithm::Selection,
             SortingAlgorithm::Insertion,
-            SortingAlgorithm::Quick,
             SortingAlgorithm::QuickVisual,
             SortingAlgorithm::MergeSort,
             SortingAlgorithm::HeapSort,
@@ -107,7 +107,6 @@ impl SortingAlgorithm {
             SortingAlgorithm::Burst,
             SortingAlgorithm::Intro,
             SortingAlgorithm::Quad,
-            SortingAlgorithm::QuickNumeric,
             SortingAlgorithm::Spaghetti,
             SortingAlgorithm::SpaghettiOpt,
             SortingAlgorithm::TimSort,
@@ -126,7 +125,6 @@ impl fmt::Display for SortingAlgorithm {
             SortingAlgorithm::Bubble => "Bubble Sort",
             SortingAlgorithm::Selection => "Selection Sort",
             SortingAlgorithm::Insertion => "Insertion Sort",
-            SortingAlgorithm::Quick => "Quick Sort",
             SortingAlgorithm::QuickVisual => "Quick Sort (Visual)",
             SortingAlgorithm::MergeSort => "Merge Sort",
             SortingAlgorithm::HeapSort => "Heap Sort",
@@ -138,7 +136,7 @@ impl fmt::Display for SortingAlgorithm {
             SortingAlgorithm::Burst => "Burst Sort",
             SortingAlgorithm::Intro => "Intro Sort",
             SortingAlgorithm::Quad => "Quad Sort",
-            SortingAlgorithm::QuickNumeric => "Quick Sort (Numeric)",
+
             SortingAlgorithm::Spaghetti => "Spaghetti Sort",
             SortingAlgorithm::SpaghettiOpt => "Spaghetti Sort (Optimized)",
             SortingAlgorithm::TimSort => "Tim Sort",
@@ -191,11 +189,6 @@ pub fn start_sort(
             SortingAlgorithm::Bubble => bubble_sort(&mut bars, &tx),
             SortingAlgorithm::Selection => selection_sort(&mut bars, &tx),
             SortingAlgorithm::Insertion => insertion_sort(&mut bars, &tx),
-            SortingAlgorithm::Quick => {
-                if len > 1 {
-                    quick_sort(&mut bars, 0, len - 1, &tx);
-                }
-            }
             SortingAlgorithm::QuickVisual => quick_sort_visual(&mut bars, &tx),
             SortingAlgorithm::MergeSort => merge_sort_visual(&mut bars, &tx),
             SortingAlgorithm::HeapSort => heap_sort_visual(&mut bars, &tx),
@@ -228,14 +221,7 @@ pub fn start_sort(
                     let _ = tx.send(Operation::SetColor(i, Color32::WHITE));
                 }
             }
-            SortingAlgorithm::QuickNumeric => {
-                let values: Vec<i32> = bars.iter().map(|b| b.value as i32).collect();
-                let sorted = quick_sort_numeric(values);
-                for (i, val) in sorted.into_iter().enumerate().take(bars.len()) {
-                    bars[i].value = val as usize;
-                    let _ = tx.send(Operation::SetColor(i, Color32::WHITE));
-                }
-            }
+
             SortingAlgorithm::Spaghetti => {
                 let values: Vec<i32> = bars.iter().map(|b| b.value as i32).collect();
                 let sorted = spaghetti_sort(values);
@@ -273,57 +259,6 @@ pub fn start_sort(
         }
         let _ = tx.send(Operation::Done);
     });
-}
-
-fn quick_sort(bars: &mut Vec<SortBar>, low: usize, high: usize, tx: &mpsc::Sender<Operation>) {
-    if bars.is_empty() || low >= high || low >= bars.len() || high >= bars.len() {
-        return;
-    }
-
-    let pi = partition(bars, low, high, tx);
-
-    // Recursive calls with proper bounds checking
-    if pi > low {
-        quick_sort(bars, low, pi - 1, tx);
-    }
-    if pi + 1 <= high && pi + 1 < bars.len() {
-        quick_sort(bars, pi + 1, high, tx);
-    }
-}
-
-fn partition(
-    bars: &mut Vec<SortBar>,
-    low: usize,
-    high: usize,
-    tx: &mpsc::Sender<Operation>,
-) -> usize {
-    if high >= bars.len() || low >= bars.len() {
-        return low; // Return safe index
-    }
-
-    let pivot = bars[high].value;
-    let mut i: usize = low;
-
-    for j in low..high {
-        let _ = tx.send(Operation::Compare(j, high));
-        thread::sleep(std::time::Duration::from_millis(10));
-
-        if bars[j].value < pivot {
-            let _ = tx.send(Operation::Swap(i, j));
-            bars.swap(i, j);
-            thread::sleep(std::time::Duration::from_millis(10));
-            i += 1;
-        }
-
-        let _ = tx.send(Operation::SetColor(j, Color32::WHITE));
-        let _ = tx.send(Operation::SetColor(high, Color32::WHITE));
-    }
-
-    let _ = tx.send(Operation::Swap(i, high));
-    bars.swap(i, high);
-    thread::sleep(std::time::Duration::from_millis(10));
-
-    i
 }
 
 // ---------- Block Merge Sort (bottom‑up visual merge sort) ----------

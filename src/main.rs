@@ -8,6 +8,8 @@ mod models;
 mod sorting;
 
 #[cfg(test)]
+mod algorithm_tests;
+#[cfg(test)]
 mod tests;
 
 fn main() -> Result<(), eframe::Error> {

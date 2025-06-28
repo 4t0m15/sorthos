@@ -2,19 +2,19 @@ use crate::gui::check_theme_consistancy::apply_theme_consistency;
 use crate::gui_backend::gui::Theme;
 use crate::models::SortBar;
 use crate::sorting::{start_sort, Operation, SortingAlgorithm};
-use eframe::egui::{self, Color32, Slider};
+use eframe::egui::{self, Color32};
 use rand::seq::SliceRandom;
 use std::sync::mpsc;
 
 pub struct SortVisualizerApp {
     bars: Vec<SortBar>,
-    algorithm: SortingAlgorithm,
-    num_bars: usize,
-    sorting: bool,
+    pub algorithm: SortingAlgorithm,
+    pub num_bars: usize,
+    pub sorting: bool,
     rx: mpsc::Receiver<Operation>,
     tx: mpsc::Sender<Operation>,
     current_theme: Theme,
-    status_message: String,
+    pub status_message: String,
 }
 
 impl SortVisualizerApp {
@@ -32,7 +32,7 @@ impl SortVisualizerApp {
         self.status_message = "Array reset with unique values".to_string();
     }
 
-    fn shuffle_bars(&mut self) {
+    pub fn shuffle_bars(&mut self) {
         self.bars.shuffle(&mut rand::thread_rng());
         let duplicate_count = self.count_duplicates();
         if duplicate_count > 0 {
@@ -43,7 +43,7 @@ impl SortVisualizerApp {
         }
     }
 
-    fn count_duplicates(&self) -> usize {
+    pub fn count_duplicates(&self) -> usize {
         let mut seen_values = std::collections::HashMap::new();
         let mut duplicate_count = 0;
 
@@ -60,7 +60,7 @@ impl SortVisualizerApp {
         duplicate_count
     }
 
-    fn remove_duplicates(&mut self) {
+    pub fn remove_duplicates(&mut self) {
         let original_duplicate_count = self.count_duplicates();
 
         // Create a map to track seen values and their positions
@@ -98,7 +98,7 @@ impl SortVisualizerApp {
         }
     }
 
-    fn generate_with_duplicates(&mut self) {
+    pub fn generate_with_duplicates(&mut self) {
         // Generate an array with intentional duplicates for testing
         let mut bars = Vec::new();
         let unique_values = self.num_bars / 3; // About 1/3 unique values
@@ -120,7 +120,7 @@ impl SortVisualizerApp {
         self.status_message = format!("Generated array with {} duplicates", duplicate_count);
     }
 
-    fn start_sorting(&mut self) {
+    pub fn start_sorting(&mut self) {
         if self.sorting {
             return;
         }
@@ -192,66 +192,6 @@ impl eframe::App for SortVisualizerApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // First, handle incoming sort operations:
         self.handle_ops();
-
-        egui::SidePanel::left("side").show(ctx, |ui| {
-            ui.label("Algorithm:");
-            for &alg in SortingAlgorithm::all() {
-                if ui
-                    .selectable_label(self.algorithm == alg, format!("{alg}"))
-                    .clicked()
-                {
-                    self.algorithm = alg;
-                }
-            }
-            ui.separator();
-
-            // Title for the controls menu
-            ui.label("Controls:");
-
-            ui.horizontal(|ui| {
-                if ui.button("Shuffle").clicked() && !self.sorting {
-                    self.shuffle_bars();
-                }
-                if ui.button("Sort").clicked() && !self.sorting {
-                    self.start_sorting();
-                }
-            });
-
-            ui.horizontal(|ui| {
-                if ui.button("Remove Duplicates").clicked() && !self.sorting {
-                    self.remove_duplicates();
-                }
-                if ui.button("Generate Duplicates").clicked() && !self.sorting {
-                    self.generate_with_duplicates();
-                }
-            });
-
-            ui.horizontal(|ui| {
-                if ui.button("Reset").clicked() && !self.sorting {
-                    self.reset_bars();
-                }
-            });
-
-            ui.add(Slider::new(&mut self.num_bars, 16..=315).text("bars"))
-                .on_hover_text("Change number of bars");
-
-            ui.separator();
-
-            // Status display
-            ui.label("Status:");
-            if !self.status_message.is_empty() {
-                ui.label(&self.status_message);
-            }
-            let duplicate_count = self.count_duplicates();
-            if duplicate_count > 0 {
-                ui.colored_label(
-                    Color32::ORANGE,
-                    format!("⚠ {} duplicates detected", duplicate_count),
-                );
-            } else {
-                ui.colored_label(Color32::GREEN, "✓ No duplicates");
-            }
-        });
 
         egui::CentralPanel::default().show(ctx, |ui| {
             let painter = ui.painter();
