@@ -43,7 +43,6 @@ pub use merge_sort_visual::merge_sort_visual;
 
 pub use quicksort_visual::quick_sort_visual;
 pub use radix_sort_visual::radix_sort_visual;
-use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 pub use selection_sort::selection_sort;
 pub use shell_sort_visual::shell_sort_visual;
@@ -123,21 +122,13 @@ pub enum Operation {
     Compare(usize, usize),
     Swap(usize, usize),
     SetColor(usize, Color32),
+    SetValue(usize, usize), // (index, value)
     Done,
 }
 
 /// Copies sorted `values` back into `bars` and repaints them white.
-fn copy_values_to_bars(bars: &mut [SortBar], values: &[usize], tx: &mpsc::Sender<Operation>) {
-    for (i, &val) in values.iter().enumerate() {
-        bars[i].value = val;
-        let _ = tx.send(Operation::SetColor(i, Color32::WHITE));
-    }
-}
 
 /// Returns `true` if the slice is in non‑decreasing order.
-fn is_sorted(slice: &[usize]) -> bool {
-    slice.windows(2).all(|w| w[0] <= w[1])
-}
 
 pub fn start_sort(
     algorithm: SortingAlgorithm,
@@ -223,6 +214,7 @@ pub fn start_sort(
 }
 
 // ---------- Block Merge Sort (bottom‑up visual merge sort) ----------
+/// Stable merge for bars[left..=mid] and bars[mid+1..=right] with visualization.
 fn merge_subarrays(
     bars: &mut Vec<SortBar>,
     left: usize,
@@ -230,48 +222,78 @@ fn merge_subarrays(
     right: usize,
     tx: &mpsc::Sender<Operation>,
 ) {
-    // Copy values into a temp vec
-    let temp: Vec<usize> = bars[left..=right].iter().map(|b| b.value).collect();
+    // Create temporary arrays for left and right subarrays
+    let left_arr: Vec<usize> = bars[left..=mid].iter().map(|b| b.value).collect();
+    let right_arr: Vec<usize> = bars[mid + 1..=right].iter().map(|b| b.value).collect();
 
-    let mut i = 0;
-    let mut j = mid - left + 1;
-    let mut k = left;
+    let left_size = left_arr.len();
+    let right_size = right_arr.len();
 
-    while i <= mid - left && j < temp.len() {
-        let idx_left = left + i;
-        let idx_right = left + j;
+    // Highlight the sections being merged
+    for i in left..=mid {
+        let _ = tx.send(Operation::SetColor(i, Color32::GREEN));
+    }
+    for i in mid + 1..=right {
+        let _ = tx.send(Operation::SetColor(i, Color32::YELLOW));
+    }
+    thread::sleep(Duration::from_millis(10));
 
-        let _ = tx.send(Operation::Compare(idx_left, idx_right));
-        thread::sleep(Duration::from_millis(6));
+    let mut i = 0; // Index for left subarray
+    let mut j = 0; // Index for right subarray
+    let mut k = left; // Index for merged array
 
-        if temp[i] <= temp[j] {
-            // Already in correct place
-            bars[k].value = temp[i];
-            let _ = tx.send(Operation::SetColor(k, Color32::WHITE));
+    // Merge the arrays stably
+    while i < left_size && j < right_size {
+        // Highlight elements being compared
+        let left_idx = left + i;
+        let right_idx = mid + 1 + j;
+
+        let _ = tx.send(Operation::Compare(left_idx, right_idx));
+        thread::sleep(Duration::from_millis(2));
+
+        if left_arr[i] <= right_arr[j] {
+            // Take from left array
+            let _ = tx.send(Operation::SetColor(k, Color32::LIGHT_GREEN));
+            bars[k].value = left_arr[i];
+            let _ = tx.send(Operation::SetValue(k, left_arr[i]));
             i += 1;
         } else {
-            // value at j is smaller – perform “insertion‑style” swaps to move it
-            let _ = tx.send(Operation::Swap(idx_left, idx_right));
-            bars[k].value = temp[j];
-            let _ = tx.send(Operation::SetColor(k, Color32::WHITE));
+            // Take from right array
+            let _ = tx.send(Operation::SetColor(k, Color32::LIGHT_YELLOW));
+            bars[k].value = right_arr[j];
+            let _ = tx.send(Operation::SetValue(k, right_arr[j]));
             j += 1;
         }
+
+        thread::sleep(Duration::from_millis(2));
         k += 1;
     }
 
-    // Copy remaining elements
-    while i <= mid - left {
-        bars[k].value = temp[i];
-        let _ = tx.send(Operation::SetColor(k, Color32::WHITE));
+    // Copy remaining elements from left array
+    while i < left_size {
+        let _ = tx.send(Operation::SetColor(k, Color32::LIGHT_GREEN));
+        bars[k].value = left_arr[i];
+        let _ = tx.send(Operation::SetValue(k, left_arr[i]));
+        thread::sleep(Duration::from_millis(1));
         i += 1;
         k += 1;
     }
-    while j < temp.len() {
-        bars[k].value = temp[j];
-        let _ = tx.send(Operation::SetColor(k, Color32::WHITE));
+
+    // Copy remaining elements from right array
+    while j < right_size {
+        let _ = tx.send(Operation::SetColor(k, Color32::LIGHT_YELLOW));
+        bars[k].value = right_arr[j];
+        let _ = tx.send(Operation::SetValue(k, right_arr[j]));
+        thread::sleep(Duration::from_millis(1));
         j += 1;
         k += 1;
     }
+
+    // Reset colors for the merged section
+    for idx in left..=right {
+        let _ = tx.send(Operation::SetColor(idx, Color32::WHITE));
+    }
+    thread::sleep(Duration::from_millis(2));
 }
 
 pub fn block_merge_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {

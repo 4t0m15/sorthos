@@ -4,26 +4,6 @@ use eframe::egui::Color32;
 use std::sync::mpsc;
 use std::time::Duration;
 
-/// Generic insertion sort for Vec<i32> with range support
-pub fn insertion_sort_range_numeric(arr: &mut Vec<i32>, start: usize, end: usize) {
-    for i in start + 1..end {
-        let key = arr[i];
-        let mut j = i;
-
-        while j > start && arr[j - 1] > key {
-            arr[j] = arr[j - 1];
-            j -= 1;
-        }
-
-        arr[j] = key;
-    }
-}
-
-/// Generic insertion sort for entire Vec<i32>
-pub fn insertion_sort_numeric(arr: &mut Vec<i32>) {
-    insertion_sort_range_numeric(arr, 0, arr.len());
-}
-
 /// Visual insertion sort for SortBar with range support
 pub fn insertion_sort_range_visual(
     bars: &mut Vec<SortBar>,

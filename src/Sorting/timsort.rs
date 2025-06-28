@@ -3,8 +3,6 @@ use crate::models::SortBar;
 use crate::sorting::Operation;
 use eframe::egui::Color32;
 use std::sync::mpsc;
-use std::thread;
-use std::time::Duration;
 
 /// Compute the “min run” for TimSort (between 32 and 64)
 fn compute_min_run(mut n: usize) -> usize {

@@ -19,9 +19,6 @@ mod algorithm_tests {
     }
 
     /// Check if a slice is sorted in non-decreasing order
-    fn is_sorted(values: &[i32]) -> bool {
-        values.windows(2).all(|w| w[0] <= w[1])
-    }
 
     /// Check if a slice is sorted in non-decreasing order (usize version)
     fn is_sorted_usize(values: &[usize]) -> bool {
@@ -29,22 +26,6 @@ mod algorithm_tests {
     }
 
     /// Test cases for all algorithms
-    fn get_test_cases() -> Vec<Vec<i32>> {
-        vec![
-            vec![5, 2, 8, 1, 9, 3, 7, 4, 6],       // Random order
-            vec![9, 8, 7, 6, 5, 4, 3, 2, 1],       // Reverse sorted
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9],       // Already sorted
-            vec![5, 5, 5, 5, 5],                   // All same values
-            vec![3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5], // With duplicates
-            vec![42],                              // Single element
-            vec![2, 1],                            // Two elements
-            vec![],                                // Empty array
-            vec![-5, -2, -8, -1, -9, -3],          // Negative numbers
-            vec![-3, 0, 5, -1, 2],                 // Mixed positive/negative
-            (1..=20).rev().collect::<Vec<_>>(),    // Larger array, reverse sorted
-            (1..=20).collect::<Vec<_>>(),          // Larger array, already sorted
-        ]
-    }
 
     #[test]
     fn test_block_merge_sort() {
@@ -222,7 +203,6 @@ mod algorithm_tests {
         }
     }
 
-    #[test]
     #[test]
     fn test_bogo_sort() {
         println!("Testing Bogo Sort...");

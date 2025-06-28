@@ -175,6 +175,10 @@ impl SortVisualizerApp {
                         *col
                     };
                 }
+                Operation::SetValue(i, value) => {
+                    println!("[DEBUG] Operation::SetValue({}, {})", i, value);
+                    self.bars[*i].value = *value;
+                }
                 Operation::Done => {
                     println!("[DEBUG] Operation::Done received, sorting finished.");
                     self.sorting = false;
