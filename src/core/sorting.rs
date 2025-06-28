@@ -14,6 +14,8 @@ mod quadsort;
 mod quicksort_numeric;
 #[path = "../Sorting/spaghettisort.rs"]
 mod spaghettisort;
+#[path = "../Sorting/timsort.rs"]
+mod timsort;
 
 use crate::models::SortBar;
 use eframe::egui::Color32;
@@ -32,6 +34,7 @@ pub use quadsort::quad_sort;
 pub use quicksort_numeric::quick_sort as quick_sort_numeric;
 pub use spaghettisort::spaghetti_sort;
 pub use spaghettisort::spaghetti_sort_optimized;
+pub use timsort::tim_sort;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SortingAlgorithm {
@@ -210,36 +213,6 @@ fn partition(bars: &mut Vec<SortBar>, low: usize, high: usize, tx: &mpsc::Sender
     thread::sleep(std::time::Duration::from_millis(10));
 
     i
-}
-
-// ---------- TimSort (visualised via insertion‑sort steps for demo purposes) ----------
-pub fn tim_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {
-    let n = bars.len();
-    for i in 1..n {
-        let mut j = i;
-        while j > 0 {
-            // Highlight comparison
-            let _ = tx.send(Operation::Compare(j - 1, j));
-            thread::sleep(Duration::from_millis(6));
-
-            if bars[j - 1].value > bars[j].value {
-                // Swap and animate
-                let _ = tx.send(Operation::Swap(j - 1, j));
-                bars.swap(j - 1, j);
-                thread::sleep(Duration::from_millis(6));
-            } else {
-                // Reset colours and break early
-                let _ = tx.send(Operation::SetColor(j - 1, Color32::WHITE));
-                let _ = tx.send(Operation::SetColor(j, Color32::WHITE));
-                break;
-            }
-            j -= 1;
-        }
-    }
-    // Paint all bars white when done
-    for idx in 0..n {
-        let _ = tx.send(Operation::SetColor(idx, Color32::WHITE));
-    }
 }
 
 // ---------- Block Merge Sort (bottom‑up visual merge sort) ----------
