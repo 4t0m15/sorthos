@@ -1,15 +1,16 @@
-# Sorthos - Sorting Algorithms Visualizer
+# Sorthos - Comprehensive Sorting Algorithm Visualizer
 
-A comprehensive sorting algorithm visualization tool built with Rust and egui. SortHos provides interactive visual representations of various sorting algorithms, allowing users to observe and understand how different sorting techniques work in real-time.
+A modern sorting algorithm visualization tool built with Rust and egui. Sorthos provides interactive visual representations of 20+ sorting algorithms, allowing users to observe and understand how different sorting techniques work in real-time, from fundamental educational algorithms to advanced hybrid approaches used in production systems.
 
 ## Features
 
 - **Real-time Visualization**: Watch sorting algorithms work step-by-step with visual feedback
-- **Comprehensive Algorithm Collection**: 20+ sorting algorithms implemented and tested
+- **Comprehensive Algorithm Collection**: 20+ sorting algorithms from educational to production-grade
 - **Interactive GUI**: User-friendly interface with algorithm selection and customization options
-- **Performance Insights**: Compare different algorithms and their time complexities
+- **Performance Analysis**: Compare algorithms by time complexity, stability, and practical performance
+- **Educational Value**: Perfect for learning algorithm design patterns and trade-offs
+- **Modern Context**: Includes algorithms used in real programming languages and systems
 - **Dark/Light Theme**: Toggle between visual themes for comfortable viewing
-- **Educational Tool**: Perfect for learning and teaching sorting algorithm concepts
 
 ## Getting Started
 
@@ -45,147 +46,268 @@ cargo test
 
 ## Implemented Algorithms
 
-All sorting algorithms have been verified and are working correctly:
+### Production-Grade Algorithms
 
-### 1. **Burst Sort**
-- **File**: `src/Sorting/burstsort.rs`
-- **Status**: Functional
-- **Description**: Hybrid algorithm using counting sort for small ranges and quicksort for large ranges
-- **Performance**: O(n + k) for small ranges, O(n log n) for large ranges
+These algorithms are used in real programming languages and systems:
 
-### 2. **Intro Sort**
+#### **Timsort**
+- **File**: `src/Sorting/timsort.rs`
+- **Status**: ✅ Functional
+- **Stability**: Stable
+- **Complexity**: O(n log n) worst case, O(n) best case (adaptive)
+- **Used In**: Python 2.3-3.10, Java 7+ (objects), Android
+- **Description**: Hybrid merge sort + insertion sort designed for real-world data with existing runs
+- **Note**: Replaced by Powersort in Python 3.11 due to improved merge policy
+
+#### **Introsort (Introspective Sort)**
 - **File**: `src/Sorting/Introsort.rs`
-- **Status**: Functional
-- **Description**: Hybrid algorithm combining quicksort, heapsort, and insertion sort
-- **Performance**: O(n log n) guaranteed worst-case
+- **Status**: ✅ Functional
+- **Stability**: Unstable
+- **Complexity**: O(n log n) guaranteed worst case
+- **Used In**: C++ STL, GNU libstdc++, LLVM libc++
+- **Description**: Hybrid quicksort + heapsort + insertion sort, switches to heapsort when recursion depth exceeds log n
+- **Advantage**: Combines quicksort's average-case speed with heapsort's worst-case guarantee
 
-### 3. **Quad Sort**
-- **File**: `src/Sorting/quadsort.rs`
-- **Status**: Functional
-- **Description**: Divide-and-conquer algorithm that splits arrays into 4 parts
-- **Performance**: O(n log n) average case
+#### **Heapsort**
+- **File**: `src/Sorting/heap_sort_visual.rs`
+- **Status**: ✅ Functional
+- **Stability**: Unstable
+- **Complexity**: O(n log n) all cases
+- **Used In**: Linux kernel, real-time systems, fallback for quicksort variants
+- **Description**: Comparison-based sort using binary heap data structure
+- **Advantage**: Guaranteed O(n log n) performance, in-place, used when predictable performance is required
 
-### 4. **Spaghetti Sort**
-- **File**: `src/Sorting/spaghettisort.rs`
-- **Status**: Functional
-- **Description**: Gravity-based sorting algorithm simulating falling spaghetti
-- **Performance**: O(n × max_value)
-- **Note**: Recently fixed gravity simulation logic and height counting
+#### **Merge Sort**
+- **File**: `src/Sorting/merge_sort_visual.rs`
+- **Status**: ✅ Functional
+- **Stability**: Stable
+- **Complexity**: O(n log n) all cases
+- **Used In**: External sorting, linked lists, when stability is required
+- **Description**: Divide-and-conquer algorithm invented by John von Neumann (1945)
+- **Advantage**: Stable, predictable performance, excellent for linked lists and external sorting
 
-### 5. **Spaghetti Sort (Optimized)**
-- **File**: `src/Sorting/spaghettisort.rs`
-- **Status**: Functional
-- **Description**: Optimized version using counting sort approach
-- **Performance**: O(n + k) where k is the range of values
+#### **Quicksort (Visual)**
+- **File**: `src/Sorting/quicksort_visual.rs`
+- **Status**: ✅ Functional
+- **Stability**: Unstable
+- **Complexity**: O(n log n) average, O(n²) worst case
+- **Used In**: Many standard libraries with optimizations, basis for hybrid algorithms
+- **Description**: Divide-and-conquer algorithm developed by Tony Hoare (1959)
+- **Note**: Modern implementations use median-of-three pivoting and fall back to heapsort for worst cases
 
-### 6. **Block Merge Sort**
-- **File**: `src/core/sorting.rs`
-- **Status**: Functional
-- **Description**: Bottom-up merge sort implementation with visual feedback
-- **Performance**: O(n log n)
+### Efficient Specialized Algorithms
 
-### 7. **Bogo Sort**
-- **File**: `src/core/sorting.rs`
-- **Status**: Functional
-- **Description**: Randomized sorting algorithm (shuffle until sorted)
-- **Performance**: O((n+1)!) worst case, O(n) best case
-- **Note**: Only practical for very small arrays
-
-### 8. **Bozo Sort**
-- **File**: `src/core/sorting.rs`
-- **Status**: Functional
-- **Description**: Randomized sorting algorithm (random swaps until sorted)
-- **Performance**: O(n!) expected case
-- **Note**: Only practical for very small arrays
-
-### 9. **Stooge Sort**
-- **File**: `src/core/sorting.rs`
-- **Status**: Functional
-- **Description**: Recursive divide-and-conquer with unique 2/3 partitioning
-- **Performance**: O(n^2.7) - very slow
-
-### 10. **Slow Sort**
-- **File**: `src/core/sorting.rs`
-- **Status**: Functional
-- **Description**: Intentionally slow recursive algorithm
-- **Performance**: O(n^(log n)) - extremely slow
-
-### 11. **Counting Sort**
+#### **Counting Sort**
 - **File**: `src/Sorting/counting_sort_visual.rs`
-- **Status**: Functional
-- **Description**: Non-comparison sorting algorithm with visual feedback
-- **Features**: Safety checks for large values to prevent memory issues
-- **Performance**: O(n + k) where k is the range of values
+- **Status**: ✅ Functional (with safety checks)
+- **Stability**: Stable
+- **Complexity**: O(n + k) where k is the range of values
+- **Used In**: Radix sort subroutine, small integer ranges
+- **Description**: Non-comparison sort that counts occurrences of each value
+- **Limitation**: Only suitable when k is not significantly larger than n
 
-### 12. **Radix Sort**
+#### **Radix Sort**
 - **File**: `src/Sorting/radix_sort_visual.rs`
-- **Status**: Functional
-- **Description**: Non-comparison sorting algorithm processing digits
-- **Features**: Safety checks and digit-based color coding for visualization
-- **Performance**: O(d × (n + k)) where d is number of digits
+- **Status**: ✅ Functional
+- **Stability**: Stable
+- **Complexity**: O(d × (n + k)) where d is number of digits
+- **Used In**: Integer sorting, digital systems
+- **Description**: Non-comparison sort processing digits from least to most significant
+- **Advantage**: Can achieve linear time for fixed-width integers
 
-### 13. **Shell Sort**
+#### **Shell Sort**
 - **File**: `src/Sorting/shell_sort_visual.rs`
-- **Status**: Functional
-- **Description**: Gap-based insertion sort with decreasing gap sizes
-- **Features**: Visual gap group highlighting
-- **Performance**: O(n^1.25) to O(n^1.5) depending on gap sequence
+- **Status**: ✅ Functional
+- **Stability**: Unstable
+- **Complexity**: O(n^1.25) to O(n^1.5) depending on gap sequence
+- **Description**: Generalization of insertion sort using decreasing gap sequences
+- **Advantage**: Simple implementation, better than O(n²) algorithms for medium-sized arrays
 
-### Additional Classic Algorithms
+### Advanced Research Algorithms
 
-The project also includes implementations of fundamental sorting algorithms:
-- **Bubble Sort**: Classic comparison-based algorithm
-- **Selection Sort**: Simple selection-based sorting
-- **Insertion Sort**: Efficient for small datasets
-- **Quick Sort**: Divide-and-conquer with partitioning
-- **Merge Sort**: Stable divide-and-conquer algorithm
-- **Heap Sort**: Heap-based sorting algorithm
-- **Cocktail Sort**: Bidirectional bubble sort
-- **Gnome Sort**: Simple position-based algorithm
-- **Tim Sort**: Hybrid stable sorting algorithm
+#### **Quad Sort**
+- **File**: `src/Sorting/quadsort.rs`
+- **Status**: ✅ Functional
+- **Stability**: Stable
+- **Complexity**: O(n log n)
+- **Description**: Modern algorithm that partitions into 4 parts instead of 2
+- **Research**: Developed as improvement over traditional divide-and-conquer approaches
+
+#### **Burst Sort**
+- **File**: `src/Sorting/burstsort.rs`
+- **Status**: ✅ Functional
+- **Stability**: Depends on implementation
+- **Complexity**: O(n + k) for small ranges, O(n log n) for large ranges
+- **Description**: Hybrid algorithm combining counting sort and quicksort based on data characteristics
+
+### Educational Algorithms
+
+These algorithms are primarily used for teaching algorithmic concepts:
+
+#### **Bubble Sort**
+- **File**: `src/Sorting/bubble_sort.rs`
+- **Status**: ✅ Functional
+- **Stability**: Stable
+- **Complexity**: O(n²) average and worst case, O(n) best case (adaptive)
+- **Description**: Named for how larger elements "bubble" to the top
+- **Educational Value**: Simple to understand, demonstrates comparison-based sorting
+- **Note**: Called "the generic bad algorithm" in computer science education
+
+#### **Insertion Sort**
+- **File**: `src/Sorting/insertion_sort.rs`
+- **Status**: ✅ Functional
+- **Stability**: Stable
+- **Complexity**: O(n²) average and worst case, O(n) best case (adaptive)
+- **Description**: Builds sorted array one element at a time, like sorting playing cards
+- **Practical Use**: Efficient for small arrays, used as subroutine in hybrid algorithms
+- **Advantage**: Simple, adaptive, stable, in-place, online
+
+#### **Selection Sort**
+- **File**: `src/Sorting/selection_sort.rs`
+- **Status**: ✅ Functional
+- **Stability**: Unstable (stable variants exist)
+- **Complexity**: O(n²) all cases
+- **Description**: Finds minimum element and swaps it to the beginning
+- **Advantage**: Minimizes number of swaps, useful when writing to memory is expensive
+
+#### **Cocktail Sort (Bidirectional Bubble Sort)**
+- **File**: `src/Sorting/cocktail_sort_visual.rs`
+- **Status**: ✅ Functional
+- **Stability**: Stable
+- **Complexity**: O(n²) average and worst case
+- **Description**: Variation of bubble sort that sorts in both directions alternately
+- **Advantage**: Slightly better performance than bubble sort on some inputs
+
+#### **Gnome Sort**
+- **File**: `src/Sorting/gnome_sort_visual.rs`
+- **Status**: ✅ Functional
+- **Stability**: Stable
+- **Complexity**: O(n²) worst case, O(n) best case
+- **Description**: Simple algorithm similar to insertion sort
+- **Educational Value**: Demonstrates position-based sorting approach
+
+### Specialized and Novelty Algorithms
+
+#### **Spaghetti Sort (Gravity Sort)**
+- **File**: `src/Sorting/spaghettisort.rs`
+- **Status**: ✅ Functional (both standard and optimized versions)
+- **Stability**: Stable
+- **Complexity**: O(n × max_value) standard, O(n + k) optimized
+- **Description**: Simulates physical gravity to sort positive integers
+- **Educational Value**: Demonstrates non-comparison sorting using physical analogies
+
+#### **Stooge Sort**
+- **File**: `src/core/sorting.rs`
+- **Status**: ✅ Functional
+- **Stability**: Unstable
+- **Complexity**: O(n^2.7) - extremely inefficient
+- **Description**: Recursive algorithm with unique 2/3 partitioning
+- **Educational Value**: Example of how not to design recursive algorithms
+
+#### **Slow Sort**
+- **File**: `src/core/sorting.rs`
+- **Status**: ✅ Functional
+- **Stability**: Unstable
+- **Complexity**: O(n^(log n)) - among the slowest possible
+- **Description**: Intentionally inefficient algorithm demonstrating worst-case design
+- **Educational Value**: Shows how recursive calls can lead to extreme inefficiency
+
+### Probabilistic Algorithms
+
+#### **Bogo Sort**
+- **File**: `src/core/sorting.rs`
+- **Status**: ✅ Functional (small arrays only)
+- **Stability**: Not guaranteed
+- **Complexity**: O((n+1)!) worst case, O(n) best case
+- **Description**: Randomly shuffles array until sorted
+- **Educational Value**: Demonstrates the importance of algorithmic design vs. random approaches
+
+#### **Bozo Sort**
+- **File**: `src/core/sorting.rs`
+- **Status**: ✅ Functional (small arrays only)
+- **Stability**: Not guaranteed
+- **Complexity**: O(n!) expected
+- **Description**: Makes random swaps until array is sorted
+- **Educational Value**: Shows probabilistic approach to sorting
+
+## Algorithm Categories by Practical Usage
+
+### **High-Performance Production Algorithms**
+- **Introsort**: C++ standard library default
+- **Timsort**: Python (legacy), Java objects, Android
+- **Merge Sort**: External sorting, stable sorting requirements
+- **Heapsort**: Real-time systems, Linux kernel
+
+### **Specialized Use Cases**
+- **Counting Sort**: Small integer ranges, histograms
+- **Radix Sort**: Fixed-width integers, digital systems
+- **Shell Sort**: Medium arrays, simple implementation needed
+
+### **Educational and Research**
+- **Bubble/Insertion/Selection Sort**: Algorithm courses, small datasets
+- **Quicksort**: Teaching divide-and-conquer, basis for hybrid algorithms
+- **Stooge/Slow/Bogo Sort**: Demonstrating algorithmic complexity
+
+### **Research and Experimental**
+- **Quad Sort**: Modern improvements to traditional approaches
+- **Burst Sort**: Adaptive hybrid strategies
+
+## Performance and Stability Analysis
+
+### **Stability** (preserves relative order of equal elements)
+- **Stable**: Merge Sort, Timsort, Bubble Sort, Insertion Sort, Counting Sort, Radix Sort
+- **Unstable**: Quicksort, Heapsort, Selection Sort, Shell Sort
+- **Stability Matters For**: Multi-key sorting, maintaining original order of tied elements
+
+### **Adaptive Performance** (faster on partially sorted data)
+- **Adaptive**: Timsort, Insertion Sort, Bubble Sort
+- **Non-Adaptive**: Selection Sort, Heapsort, Merge Sort (standard)
+- **Adaptive Advantage**: Real-world data often has existing order
+
+### **Memory Usage**
+- **In-Place O(1)**: Bubble, Selection, Insertion, Heapsort, Shell Sort
+- **O(log n) auxiliary**: Quicksort (recursion stack), Introsort
+- **O(n) auxiliary**: Merge Sort, Timsort, Counting Sort
+
+### **Real-World Performance Factors**
+1. **Cache Locality**: Quicksort > Heapsort > Merge Sort
+2. **Branch Prediction**: Counting Sort > Comparison-based sorts
+3. **Instruction Count**: Simple algorithms may outperform complex ones for small arrays
+4. **Data Characteristics**: Adaptive algorithms excel on real-world data
+
+## Modern Usage
+
+### **Language Implementation Choices**
+- **Python**: Timsort (2.3-3.10) → Powersort (3.11+)
+- **Java**: Timsort for objects, dual-pivot quicksort for primitives
+- **C++**: Introsort in most standard library implementations
+- **JavaScript V8**: Timsort
+- **Swift**: Introsort variant
+- **Rust**: Introsort (pattern-defeating quicksort)
 
 ## Testing and Quality Assurance
 
-### Test Coverage
-- **29 comprehensive tests** covering all algorithms
-- **Multiple test scenarios**: Random arrays, sorted arrays, reverse sorted, duplicates, edge cases
-- **Performance testing**: Various array sizes and complexity verification
-- **Stability testing**: Element preservation and duplicate handling
-- **Edge case handling**: Empty arrays, single elements, negative numbers
+### **Comprehensive Test Coverage**
+- **29+ test cases** covering all implemented algorithms
+- **Multiple scenarios**: Random, sorted, reverse-sorted, duplicates, edge cases
+- **Stability verification**: Ensuring stable sorts preserve element order
+- **Performance validation**: Complexity verification for different input sizes
+- **Edge case handling**: Empty arrays, single elements, all equal values
 
-### Test Results
-All tests pass successfully, ensuring reliability and correctness of every implemented algorithm.
-
-### Running Specific Tests
+### **Test Categories**
 ```bash
-# Run algorithm-specific tests
-cargo test algorithm_tests
+# Run all tests
+cargo test
 
-# Run all tests with output
+# Run specific algorithm tests
+cargo test test_timsort_functionality
+
+# Run edge case tests
+cargo test test_sorting_edge_cases
+
+# Run with detailed output
 cargo test -- --nocapture
-
-# Run specific algorithm test
-cargo test test_spaghetti_sort
 ```
-
-## Performance Categories
-
-### Fast Algorithms (Practical for Large Datasets)
-- Intro Sort, Quad Sort, Block Merge Sort
-- Counting Sort, Radix Sort, Shell Sort, Burst Sort
-- **Complexity**: O(n log n) or better
-
-### Moderate Algorithms (Good for Medium Datasets)
-- Spaghetti Sort (Optimized), Tim Sort
-- **Complexity**: O(n + k) to O(n log n)
-
-### Educational Algorithms (Small Datasets Only)
-- Spaghetti Sort, Stooge Sort, Slow Sort
-- **Complexity**: O(n²) to O(n^(log n))
-
-### Probabilistic Algorithms (Unpredictable Timing)
-- Bogo Sort, Bozo Sort
-- **Complexity**: Factorial or worse
 
 ## Project Structure
 
@@ -193,19 +315,39 @@ cargo test test_spaghetti_sort
 sorthos/
 ├── src/
 │   ├── Sorting/           # Individual algorithm implementations
-│   ├── core/              # Core functionality and main sorting logic
+│   │   ├── timsort.rs     # Production-grade algorithms
+│   │   ├── Introsort.rs
+│   │   ├── counting_sort_visual.rs
+│   │   ├── radix_sort_visual.rs
+│   │   ├── bubble_sort.rs  # Educational algorithms
+│   │   ├── insertion_sort.rs
+│   │   └── ...
+│   ├── core/              # Core sorting logic and simple algorithms
 │   ├── gui/               # User interface components
 │   ├── assets/            # Visual assets and resources
-│   └── tests.rs           # Comprehensive test suites
+│   ├── algorithm_tests.rs # Algorithm-specific tests
+│   └── tests.rs           # Comprehensive test suite
 ├── target/                # Compiled binaries and dependencies
-└── Cargo.toml             # Project configuration and dependencies
+├── Cargo.toml             # Project configuration
+└── README.md              # This documentation
 ```
+
+
+## Contributing
+
+Contributions welcome!
+- Additional modern sorting algorithms
+- Performance optimizations
+- Visualization improvements
+- better docs
+- Parallel sorting algorithms
 
 ## License
 
 BSD-3-Clause
 
-## Libraries Used
+## Dependencies
 
-- **egui**: Immediate mode GUI framework
+- **egui**: Modern immediate mode GUI framework
 - **eframe**: Application framework for egui
+- **Standard Library**: Comprehensive use of Rust's std collections and algorithms
