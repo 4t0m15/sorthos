@@ -150,17 +150,21 @@ impl SortVisualizerApp {
         let mut op_count = 0;
         while let Ok(op) = self.rx.try_recv() {
             op_count += 1;
-            match &op {
+            match op {
                 Operation::Compare(i, j) => {
                     println!("[DEBUG] Operation::Compare({}, {})", i, j);
-                    self.bars[*i].color = Color32::YELLOW;
-                    self.bars[*j].color = Color32::YELLOW;
+                    self.bars[i].color = Color32::YELLOW;
+                    self.bars[j].color = Color32::YELLOW;
                 }
                 Operation::Swap(i, j) => {
                     println!("[DEBUG] Operation::Swap({}, {})", i, j);
-                    self.bars.swap(*i, *j);
-                    self.bars[*i].color = Color32::GREEN;
-                    self.bars[*j].color = Color32::GREEN;
+                    self.bars.swap(i, j);
+                    self.bars[i].color = Color32::GREEN;
+                    self.bars[j].color = Color32::GREEN;
+                }
+                Operation::Overwrite(i, bar) => {
+                    println!("[DEBUG] Operation::Overwrite({}, {:?})", i, bar.value);
+                    self.bars[i] = bar;
                 }
                 Operation::SetColor(i, col) => {
                     // remap "WHITE reset" to your theme’s default background color
@@ -169,15 +173,7 @@ impl SortVisualizerApp {
                         Theme::Dark => Color32::WHITE,
                     };
                     println!("[DEBUG] Operation::SetColor({}, {:?})", i, col);
-                    self.bars[*i].color = if *col == Color32::WHITE {
-                        default
-                    } else {
-                        *col
-                    };
-                }
-                Operation::SetValue(i, value) => {
-                    println!("[DEBUG] Operation::SetValue({}, {})", i, value);
-                    self.bars[*i].value = *value;
+                    self.bars[i].color = if col == Color32::WHITE { default } else { col };
                 }
                 Operation::Done => {
                     println!("[DEBUG] Operation::Done received, sorting finished.");

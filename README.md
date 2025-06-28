@@ -1,6 +1,5 @@
-# Sorthos - Comprehensive Sorting Algorithm Visualizer
+# Sorthos
 
-A modern sorting algorithm visualization tool built with Rust and egui. Sorthos provides interactive visual representations of 20+ sorting algorithms, allowing users to observe and understand how different sorting techniques work in real-time, from fundamental educational algorithms to advanced hybrid approaches used in production systems.
 
 ## Features
 

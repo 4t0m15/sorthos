@@ -290,7 +290,7 @@ pub fn run_gui() -> Result<(), eframe::Error> {
         ..Default::default()
     };
     eframe::run_native(
-        "Sorthos - Sorting Algorithms Visualizer",
+        "Sorthos",
         options,
         Box::new(|cc| Ok(Box::new(Sorthos::new(cc)) as Box<dyn eframe::App>)),
     )
