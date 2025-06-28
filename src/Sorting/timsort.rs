@@ -54,12 +54,17 @@ pub fn tim_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {
 
         // Only force-extend if there are at least min_run elements left after this run
         if run_len < min_run && remaining >= min_run {
+            // Not enough elements for a natural run – extend using insertion sort
             let extend_to = run_start + min_run;
             insertion_sort_range_visual(bars, run_start, extend_to, tx);
             runs.push((run_start, extend_to));
             i = extend_to;
         } else if run_len < min_run {
-            // Already >= min_run, or this is the final tail (< min_run)
+            // Final tail smaller than MIN_RUN
+            runs.push((run_start, run_end));
+            i = run_end;
+        } else {
+            // Natural run already at least MIN_RUN in length
             runs.push((run_start, run_end));
             i = run_end;
         }
