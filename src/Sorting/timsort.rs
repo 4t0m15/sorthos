@@ -125,57 +125,79 @@ fn merge_visual(
     end: usize,
     tx: &mpsc::Sender<Operation>,
 ) {
-    let left: Vec<_> = bars[start..mid].to_vec();
-    let right: Vec<_> = bars[mid..end].to_vec();
-    let mut i = 0;
-    let mut j = 0;
-    let mut k = start;
+    let left_len = mid - start;
+    let right_len = end - mid;
 
-    // highlight
-    for idx in start..end {
-        let _ = tx.send(Operation::SetColor(idx, Color32::YELLOW));
+    // Highlight the merging range
+    for x in start..end {
+        let _ = tx.send(Operation::SetColor(x, Color32::YELLOW));
     }
-    thread::sleep(Duration::from_millis(30));
+    std::thread::sleep(std::time::Duration::from_millis(20));
 
-    // merge loop
-    while i < left.len() && j < right.len() {
-        let left_idx = start + i;
-        let right_idx = mid + j;
-        let _ = tx.send(Operation::Compare(left_idx, right_idx));
-        thread::sleep(Duration::from_millis(10));
+    if left_len <= right_len {
+        // Merge left (smaller side) using temp buffer
+        let left = bars[start..mid].to_vec();
+        let mut i = 0;
+        let mut j = mid;
+        let mut k = start;
 
-        if left[i].value <= right[j].value {
+        while i < left_len && j < end {
+            let _ = tx.send(Operation::Compare(start + i, j));
+            std::thread::sleep(std::time::Duration::from_millis(10));
+            if left[i].value <= bars[j].value {
+                bars[k] = left[i].clone();
+                i += 1;
+            } else {
+                bars[k] = bars[j].clone();
+                j += 1;
+            }
+            let _ = tx.send(Operation::SetColor(k, Color32::GREEN));
+            std::thread::sleep(std::time::Duration::from_millis(10));
+            k += 1;
+        }
+        // Copy remaining left elements
+        while i < left_len {
             bars[k] = left[i].clone();
             let _ = tx.send(Operation::SetColor(k, Color32::GREEN));
+            std::thread::sleep(std::time::Duration::from_millis(5));
             i += 1;
-        } else {
-            bars[k] = right[j].clone();
+            k += 1;
+        }
+    } else {
+        // Always copy the right run to a temporary buffer
+        let right = bars[mid..end].to_vec();
+        let mut i = mid.wrapping_sub(1); // Start from last element of left run
+        let mut j = right_len.wrapping_sub(1); // Last element of right buffer
+        let mut k = end.wrapping_sub(1); // Start from end of merged array
+
+        // Process while both runs have elements
+        while i >= start && j < right.len() {
+            let _ = tx.send(Operation::Compare(i, mid + j));
+            std::thread::sleep(std::time::Duration::from_millis(10));
+            if bars[i].value > right[j].value {
+                bars[k] = bars[i].clone();
+                i = i.wrapping_sub(1); // Move left in original array
+            } else {
+                bars[k] = right[j].clone();
+                j = j.wrapping_sub(1); // Move left in temp buffer
+            }
             let _ = tx.send(Operation::SetColor(k, Color32::GREEN));
-            j += 1;
+            std::thread::sleep(std::time::Duration::from_millis(10));
+            k = k.wrapping_sub(1);
         }
 
-        thread::sleep(Duration::from_millis(10));
-        k += 1;
+        // Copy any remaining right elements
+        while j < right.len() {
+            bars[k] = right[j].clone();
+            let _ = tx.send(Operation::SetColor(k, Color32::GREEN));
+            std::thread::sleep(std::time::Duration::from_millis(5));
+            j = j.wrapping_sub(1);
+            k = k.wrapping_sub(1);
+        }
     }
 
-    // drain leftovers
-    while i < left.len() {
-        bars[k] = left[i].clone();
-        let _ = tx.send(Operation::SetColor(k, Color32::GREEN));
-        thread::sleep(Duration::from_millis(5));
-        i += 1;
-        k += 1;
-    }
-    while j < right.len() {
-        bars[k] = right[j].clone();
-        let _ = tx.send(Operation::SetColor(k, Color32::GREEN));
-        thread::sleep(Duration::from_millis(5));
-        j += 1;
-        k += 1;
-    }
-
-    // reset
-    for idx in start..end {
-        let _ = tx.send(Operation::SetColor(idx, Color32::WHITE));
+    // Reset all bars to white
+    for x in start..end {
+        let _ = tx.send(Operation::SetColor(x, Color32::WHITE));
     }
 }
