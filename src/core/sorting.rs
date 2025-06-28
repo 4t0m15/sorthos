@@ -18,7 +18,6 @@ mod introsort;
 mod merge_sort_visual;
 #[path = "../Sorting/quadsort.rs"]
 mod quadsort;
-
 #[path = "../Sorting/quicksort_visual.rs"]
 mod quicksort_visual;
 #[path = "../Sorting/radix_sort_visual.rs"]
@@ -35,31 +34,29 @@ mod spaghettisort;
 mod timsort;
 
 use crate::models::SortBar;
-use eframe::egui::Color32;
-use rand::seq::SliceRandom;
-use rand::{thread_rng, Rng};
-use std::fmt;
-use std::sync::mpsc;
-use std::thread;
-use std::time::Duration;
-
 pub use bubble_sort::bubble_sort;
 pub use burstsort::burst_sort;
 pub use cocktail_sort_visual::cocktail_sort_visual;
 pub use counting_sort_visual::counting_sort_visual;
+use eframe::egui::Color32;
 pub use gnome_sort_visual::gnome_sort_visual;
 pub use heap_sort_visual::heap_sort_visual;
 pub use insertion_sort::insertion_sort;
 pub use introsort::introsort;
 pub use merge_sort_visual::merge_sort_visual;
 pub use quadsort::quad_sort;
-
 pub use quicksort_visual::quick_sort_visual;
 pub use radix_sort_visual::radix_sort_visual;
+use rand::seq::SliceRandom;
+use rand::{thread_rng, Rng};
 pub use selection_sort::selection_sort;
 pub use shell_sort_visual::shell_sort_visual;
 pub use spaghettisort::spaghetti_sort;
 pub use spaghettisort::spaghetti_sort_optimized;
+use std::fmt;
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
 pub use timsort::tim_sort;
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]

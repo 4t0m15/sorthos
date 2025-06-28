@@ -28,6 +28,7 @@ enum SortingAlgorithm {
     #[default]
     About,
     Controls,
+    Info,
     Duck,
 }
 
@@ -59,6 +60,54 @@ impl Sorthos {
         app.sort_app.apply_theme(app.theme);
         app
     }
+
+    fn show_info_page(&self, ui: &mut egui::Ui) {
+        ui.heading("Algorithm Information");
+        ui.separator();
+
+        ui.label("Below is a list of sorting algorithms and their performance characteristics:");
+
+        ui.separator();
+        ui.label("Production-Grade Algorithms");
+        ui.label("- Timsort: O(n log n) worst case, O(n) best case (adaptive), Stable");
+        ui.label("- Introsort: O(n log n) guaranteed worst case, Unstable");
+        ui.label("- Heapsort: O(n log n) all cases, Unstable");
+        ui.label("- Merge Sort: O(n log n) all cases, Stable");
+        ui.label("- Quicksort: O(n log n) average, O(n²) worst case, Unstable");
+
+        ui.separator();
+        ui.label("Efficient Specialized Algorithms");
+        ui.label("- Counting Sort: O(n + k), Stable");
+        ui.label("- Radix Sort: O(d × (n + k)), Stable");
+        ui.label("- Shell Sort: O(n^1.25) to O(n^1.5), Unstable");
+
+        ui.separator();
+        ui.label("Advanced Research Algorithms");
+        ui.label("- Quad Sort: O(n log n), Stable");
+        ui.label("- Burst Sort: O(n + k) for small ranges, O(n log n) for large ranges, Stability depends on implementation");
+
+        ui.separator();
+        ui.label("Educational Algorithms");
+        ui.label("- Bubble Sort: O(n²) average and worst case, O(n) best case (adaptive), Stable");
+        ui.label(
+            "- Insertion Sort: O(n²) average and worst case, O(n) best case (adaptive), Stable",
+        );
+        ui.label("- Selection Sort: O(n²) all cases, Unstable");
+        ui.label("- Cocktail Sort: O(n²) average and worst case, Stable");
+        ui.label("- Gnome Sort: O(n²) worst case, O(n) best case, Stable");
+
+        ui.separator();
+        ui.label("Specialized and Novelty Algorithms");
+        ui.label("- Spaghetti Sort: O(n × max_value) standard, O(n + k) optimized, Stable");
+        ui.label("- Stooge Sort: O(n^2.7), Unstable");
+        ui.label("- Slow Sort: O(n^(log n)), Unstable");
+
+        ui.separator();
+        ui.label("Probabilistic Algorithms");
+        ui.label("- Bogo Sort: O((n+1)!) worst case, O(n) best case, Not guaranteed to terminate");
+        ui.label("- Bozo Sort: O(n!) expected, Not guaranteed to terminate");
+    }
+
     fn show_duck_page(&mut self, ui: &mut egui::Ui) {
         ui.heading("Duck");
         ui.separator();
@@ -71,7 +120,6 @@ impl Sorthos {
         ui.heading("Sort Controls");
         ui.separator();
 
-        // Title for the controls menu
         ui.label("Controls:");
 
         ui.horizontal(|ui| {
@@ -100,7 +148,6 @@ impl Sorthos {
 
         ui.separator();
 
-        // Status display
         ui.label("Status:");
         if !self.sort_app.status_message.is_empty() {
             ui.label(&self.sort_app.status_message);
@@ -190,8 +237,17 @@ impl eframe::App for Sorthos {
             {
                 self.selected_algorithm = SortingAlgorithm::Duck;
             }
+            if ui
+                .selectable_label(self.selected_algorithm == SortingAlgorithm::Info, "info")
+                .clicked()
+            {
+                self.selected_algorithm = SortingAlgorithm::Info;
+            }
         });
         match self.selected_algorithm {
+            SortingAlgorithm::Info => {
+                egui::CentralPanel::default().show(ctx, |ui| self.show_info_page(ui));
+            }
             SortingAlgorithm::About => {
                 egui::SidePanel::left("sorting_controls").show(ctx, |ui| {
                     ui.label("Algorithm:");
