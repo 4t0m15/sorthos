@@ -43,7 +43,6 @@ pub use merge_sort_visual::merge_sort_visual;
 
 pub use quicksort_visual::quick_sort_visual;
 pub use radix_sort_visual::radix_sort_visual;
-use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 pub use selection_sort::selection_sort;
 pub use shell_sort_visual::shell_sort_visual;
@@ -128,17 +127,8 @@ pub enum Operation {
 }
 
 /// Copies sorted `values` back into `bars` and repaints them white.
-fn copy_values_to_bars(bars: &mut [SortBar], values: &[usize], tx: &mpsc::Sender<Operation>) {
-    for (i, &val) in values.iter().enumerate() {
-        bars[i].value = val;
-        let _ = tx.send(Operation::SetColor(i, Color32::WHITE));
-    }
-}
 
 /// Returns `true` if the slice is in non‑decreasing order.
-fn is_sorted(slice: &[usize]) -> bool {
-    slice.windows(2).all(|w| w[0] <= w[1])
-}
 
 pub fn start_sort(
     algorithm: SortingAlgorithm,
