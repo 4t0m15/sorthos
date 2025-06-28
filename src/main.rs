@@ -7,6 +7,9 @@ mod models;
 #[path = "core/sorting.rs"]
 mod sorting;
 
+#[cfg(test)]
+mod tests;
+
 fn main() -> Result<(), eframe::Error> {
     gui_backend::gui::run_gui()
 }

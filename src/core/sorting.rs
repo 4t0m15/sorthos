@@ -1,17 +1,33 @@
 #[path = "../Sorting/bubble_sort.rs"]
 mod bubble_sort;
-#[path = "../Sorting/selection_sort.rs"]
-mod selection_sort;
-#[path = "../Sorting/insertion_sort.rs"]
-mod insertion_sort;
 #[path = "../Sorting/burstsort.rs"]
 mod burstsort;
+#[path = "../Sorting/cocktail_sort_visual.rs"]
+mod cocktail_sort_visual;
+#[path = "../Sorting/counting_sort_visual.rs"]
+mod counting_sort_visual;
+#[path = "../Sorting/gnome_sort_visual.rs"]
+mod gnome_sort_visual;
+#[path = "../Sorting/heap_sort_visual.rs"]
+mod heap_sort_visual;
+#[path = "../Sorting/insertion_sort.rs"]
+mod insertion_sort;
 #[path = "../Sorting/Introsort.rs"]
 mod introsort;
+#[path = "../Sorting/merge_sort_visual.rs"]
+mod merge_sort_visual;
 #[path = "../Sorting/quadsort.rs"]
 mod quadsort;
 #[path = "../Sorting/quicksort.rs"]
 mod quicksort_numeric;
+#[path = "../Sorting/quicksort_visual.rs"]
+mod quicksort_visual;
+#[path = "../Sorting/radix_sort_visual.rs"]
+mod radix_sort_visual;
+#[path = "../Sorting/selection_sort.rs"]
+mod selection_sort;
+#[path = "../Sorting/shell_sort_visual.rs"]
+mod shell_sort_visual;
 #[path = "../Sorting/spaghettisort.rs"]
 mod spaghettisort;
 #[path = "../Sorting/timsort.rs"]
@@ -19,19 +35,28 @@ mod timsort;
 
 use crate::models::SortBar;
 use eframe::egui::Color32;
-use std::sync::mpsc;
-use std::thread;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
+use std::fmt;
+use std::sync::mpsc;
+use std::thread;
 use std::time::Duration;
 
 pub use bubble_sort::bubble_sort;
-pub use selection_sort::selection_sort;
-pub use insertion_sort::insertion_sort;
 pub use burstsort::burst_sort;
+pub use cocktail_sort_visual::cocktail_sort_visual;
+pub use counting_sort_visual::counting_sort_visual;
+pub use gnome_sort_visual::gnome_sort_visual;
+pub use heap_sort_visual::heap_sort_visual;
+pub use insertion_sort::insertion_sort;
 pub use introsort::introsort;
+pub use merge_sort_visual::merge_sort_visual;
 pub use quadsort::quad_sort;
 pub use quicksort_numeric::quick_sort as quick_sort_numeric;
+pub use quicksort_visual::quick_sort_visual;
+pub use radix_sort_visual::radix_sort_visual;
+pub use selection_sort::selection_sort;
+pub use shell_sort_visual::shell_sort_visual;
 pub use spaghettisort::spaghetti_sort;
 pub use spaghettisort::spaghetti_sort_optimized;
 pub use timsort::tim_sort;
@@ -42,6 +67,14 @@ pub enum SortingAlgorithm {
     Selection,
     Insertion,
     Quick,
+    QuickVisual,
+    MergeSort,
+    HeapSort,
+    CountingSort,
+    RadixSort,
+    ShellSort,
+    CocktailSort,
+    GnomeSort,
     Burst,
     Intro,
     Quad,
@@ -63,6 +96,14 @@ impl SortingAlgorithm {
             SortingAlgorithm::Selection,
             SortingAlgorithm::Insertion,
             SortingAlgorithm::Quick,
+            SortingAlgorithm::QuickVisual,
+            SortingAlgorithm::MergeSort,
+            SortingAlgorithm::HeapSort,
+            SortingAlgorithm::CountingSort,
+            SortingAlgorithm::RadixSort,
+            SortingAlgorithm::ShellSort,
+            SortingAlgorithm::CocktailSort,
+            SortingAlgorithm::GnomeSort,
             SortingAlgorithm::Burst,
             SortingAlgorithm::Intro,
             SortingAlgorithm::Quad,
@@ -76,6 +117,38 @@ impl SortingAlgorithm {
             SortingAlgorithm::StoogeSort,
             SortingAlgorithm::SlowSort,
         ]
+    }
+}
+
+impl fmt::Display for SortingAlgorithm {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let name = match self {
+            SortingAlgorithm::Bubble => "Bubble Sort",
+            SortingAlgorithm::Selection => "Selection Sort",
+            SortingAlgorithm::Insertion => "Insertion Sort",
+            SortingAlgorithm::Quick => "Quick Sort",
+            SortingAlgorithm::QuickVisual => "Quick Sort (Visual)",
+            SortingAlgorithm::MergeSort => "Merge Sort",
+            SortingAlgorithm::HeapSort => "Heap Sort",
+            SortingAlgorithm::CountingSort => "Counting Sort",
+            SortingAlgorithm::RadixSort => "Radix Sort",
+            SortingAlgorithm::ShellSort => "Shell Sort",
+            SortingAlgorithm::CocktailSort => "Cocktail Sort",
+            SortingAlgorithm::GnomeSort => "Gnome Sort",
+            SortingAlgorithm::Burst => "Burst Sort",
+            SortingAlgorithm::Intro => "Intro Sort",
+            SortingAlgorithm::Quad => "Quad Sort",
+            SortingAlgorithm::QuickNumeric => "Quick Sort (Numeric)",
+            SortingAlgorithm::Spaghetti => "Spaghetti Sort",
+            SortingAlgorithm::SpaghettiOpt => "Spaghetti Sort (Optimized)",
+            SortingAlgorithm::TimSort => "Tim Sort",
+            SortingAlgorithm::BlockMergeSort => "Block Merge Sort",
+            SortingAlgorithm::BogoSort => "Bogo Sort",
+            SortingAlgorithm::BozoSort => "Bozo Sort",
+            SortingAlgorithm::StoogeSort => "Stooge Sort",
+            SortingAlgorithm::SlowSort => "Slow Sort",
+        };
+        write!(f, "{}", name)
     }
 }
 
@@ -100,14 +173,37 @@ fn is_sorted(slice: &[usize]) -> bool {
     slice.windows(2).all(|w| w[0] <= w[1])
 }
 
-pub fn start_sort(algorithm: SortingAlgorithm, mut bars: Vec<SortBar>, tx: mpsc::Sender<Operation>) {
+pub fn start_sort(
+    algorithm: SortingAlgorithm,
+    mut bars: Vec<SortBar>,
+    tx: mpsc::Sender<Operation>,
+) {
     thread::spawn(move || {
         let len = bars.len();
+
+        // Handle edge cases - arrays with 0 or 1 elements are already sorted
+        if len <= 1 {
+            let _ = tx.send(Operation::Done);
+            return;
+        }
+
         match algorithm {
             SortingAlgorithm::Bubble => bubble_sort(&mut bars, &tx),
             SortingAlgorithm::Selection => selection_sort(&mut bars, &tx),
             SortingAlgorithm::Insertion => insertion_sort(&mut bars, &tx),
-            SortingAlgorithm::Quick => quick_sort(&mut bars, 0, len.saturating_sub(1), &tx),
+            SortingAlgorithm::Quick => {
+                if len > 1 {
+                    quick_sort(&mut bars, 0, len - 1, &tx);
+                }
+            }
+            SortingAlgorithm::QuickVisual => quick_sort_visual(&mut bars, &tx),
+            SortingAlgorithm::MergeSort => merge_sort_visual(&mut bars, &tx),
+            SortingAlgorithm::HeapSort => heap_sort_visual(&mut bars, &tx),
+            SortingAlgorithm::CountingSort => counting_sort_visual(&mut bars, &tx),
+            SortingAlgorithm::RadixSort => radix_sort_visual(&mut bars, &tx),
+            SortingAlgorithm::ShellSort => shell_sort_visual(&mut bars, &tx),
+            SortingAlgorithm::CocktailSort => cocktail_sort_visual(&mut bars, &tx),
+            SortingAlgorithm::GnomeSort => gnome_sort_visual(&mut bars, &tx),
             SortingAlgorithm::Burst => {
                 let values: Vec<i32> = bars.iter().map(|b| b.value as i32).collect();
                 let sorted = burst_sort(values);
@@ -180,16 +276,31 @@ pub fn start_sort(algorithm: SortingAlgorithm, mut bars: Vec<SortBar>, tx: mpsc:
 }
 
 fn quick_sort(bars: &mut Vec<SortBar>, low: usize, high: usize, tx: &mpsc::Sender<Operation>) {
-    if low < high {
-        let pi = partition(bars, low, high, tx);
-        if pi > 0 {
-            quick_sort(bars, low, pi - 1, tx);
-        }
+    if bars.is_empty() || low >= high || low >= bars.len() || high >= bars.len() {
+        return;
+    }
+
+    let pi = partition(bars, low, high, tx);
+
+    // Recursive calls with proper bounds checking
+    if pi > low {
+        quick_sort(bars, low, pi - 1, tx);
+    }
+    if pi + 1 <= high && pi + 1 < bars.len() {
         quick_sort(bars, pi + 1, high, tx);
     }
 }
 
-fn partition(bars: &mut Vec<SortBar>, low: usize, high: usize, tx: &mpsc::Sender<Operation>) -> usize {
+fn partition(
+    bars: &mut Vec<SortBar>,
+    low: usize,
+    high: usize,
+    tx: &mpsc::Sender<Operation>,
+) -> usize {
+    if high >= bars.len() || low >= bars.len() {
+        return low; // Return safe index
+    }
+
     let pivot = bars[high].value;
     let mut i: usize = low;
 
