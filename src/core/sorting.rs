@@ -50,7 +50,7 @@ pub use shell_sort_visual::shell_sort_visual;
 use std::fmt;
 use std::sync::mpsc;
 use std::thread;
-use std::time::Duration;
+
 pub use timsort::tim_sort;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
