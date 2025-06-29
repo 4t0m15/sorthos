@@ -98,7 +98,7 @@ impl fmt::Display for SortingAlgorithm {
             SortingAlgorithm::Bubble => "Bubble Sort",
             SortingAlgorithm::Selection => "Selection Sort",
             SortingAlgorithm::Insertion => "Insertion Sort",
-            SortingAlgorithm::QuickVisual => "Quick Sort (Visual)",
+            SortingAlgorithm::QuickVisual => "Quick Sort",
             SortingAlgorithm::MergeSort => "Merge Sort",
             SortingAlgorithm::HeapSort => "Heap Sort",
             SortingAlgorithm::CountingSort => "Counting Sort",

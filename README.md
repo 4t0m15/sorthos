@@ -78,7 +78,7 @@ These algorithms are used in real programming languages and systems:
 - **Description**: Divide-and-conquer algorithm invented by John von Neumann (1945)
 - **Advantage**: Stable, predictable performance, excellent for linked lists and external sorting
 
-#### **Quicksort (Visual)**
+#### **Quicksort**
 - **File**: `src/Sorting/quicksort_visual.rs`
 - **Status**: ✅ Functional
 - **Stability**: Unstable
