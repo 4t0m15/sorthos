@@ -67,7 +67,7 @@ impl Sorthos {
         ui.heading("Algorithm Information");
         ui.separator();
 
-        ui.label("Below is a list of sorting algorithms and their performance characteristics:");
+        ui.label("Below is a list of how to and where sorting algorithms are used:");
 
         ui.separator();
         ui.label("Production-Grade Algorithms");

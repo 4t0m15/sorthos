@@ -69,7 +69,6 @@ pub enum SortingAlgorithm {
     GnomeSort,
 
     TimSort,
-    BlockMergeSort,
     BogoSort,
 }
 
@@ -88,7 +87,6 @@ impl SortingAlgorithm {
             SortingAlgorithm::CocktailSort,
             SortingAlgorithm::GnomeSort,
             SortingAlgorithm::TimSort,
-            SortingAlgorithm::BlockMergeSort,
             SortingAlgorithm::BogoSort,
         ]
     }
@@ -110,7 +108,6 @@ impl fmt::Display for SortingAlgorithm {
             SortingAlgorithm::GnomeSort => "Gnome Sort",
 
             SortingAlgorithm::TimSort => "Tim Sort",
-            SortingAlgorithm::BlockMergeSort => "Block Merge Sort",
             SortingAlgorithm::BogoSort => "Bogo Sort",
         };
         write!(f, "{}", name)
@@ -199,10 +196,6 @@ pub fn start_sort(
                 println!("[DEBUG] start_sort: Running tim_sort");
                 tim_sort(&mut bars, &tx);
             }
-            SortingAlgorithm::BlockMergeSort => {
-                println!("[DEBUG] start_sort: Running block_merge_sort");
-                block_merge_sort(&mut bars, &tx);
-            }
             SortingAlgorithm::BogoSort => {
                 println!("[DEBUG] start_sort: Running bogo_sort");
                 bogo_sort(&mut bars, &tx);
@@ -213,76 +206,7 @@ pub fn start_sort(
     });
 }
 
-// ---------- Block Merge Sort (bottom‑up visual merge sort) ----------
-fn merge_subarrays(
-    bars: &mut Vec<SortBar>,
-    left: usize,
-    mid: usize,
-    right: usize,
-    tx: &mpsc::Sender<Operation>,
-) {
-    // Copy values into a temp vec
-    let temp: Vec<usize> = bars[left..=right].iter().map(|b| b.value).collect();
-
-    let mut i = 0;
-    let mut j = mid - left + 1;
-    let mut k = left;
-
-    while i <= mid - left && j < temp.len() {
-        let idx_left = left + i;
-        let idx_right = left + j;
-
-        let _ = tx.send(Operation::Compare(idx_left, idx_right));
-        thread::sleep(Duration::from_millis(6));
-
-        if temp[i] <= temp[j] {
-            // Already in correct place
-            bars[k].value = temp[i];
-            let _ = tx.send(Operation::SetColor(k, Color32::WHITE));
-            i += 1;
-        } else {
-            // value at j is smaller – perform “insertion‑style” swaps to move it
-            let _ = tx.send(Operation::Swap(idx_left, idx_right));
-            bars[k].value = temp[j];
-            let _ = tx.send(Operation::SetColor(k, Color32::WHITE));
-            j += 1;
-        }
-        k += 1;
-    }
-
-    // Copy remaining elements
-    while i <= mid - left {
-        bars[k].value = temp[i];
-        let _ = tx.send(Operation::SetColor(k, Color32::WHITE));
-        i += 1;
-        k += 1;
-    }
-    while j < temp.len() {
-        bars[k].value = temp[j];
-        let _ = tx.send(Operation::SetColor(k, Color32::WHITE));
-        j += 1;
-        k += 1;
-    }
-}
-
-pub fn block_merge_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {
-    let n = bars.len();
-    let mut curr_size = 1;
-    while curr_size < n {
-        let mut left_start = 0;
-        while left_start < n - curr_size {
-            let mid = left_start + curr_size - 1;
-            let right_end = std::cmp::min(left_start + 2 * curr_size - 1, n - 1);
-            merge_subarrays(bars, left_start, mid, right_end, tx);
-            left_start += 2 * curr_size;
-        }
-        curr_size *= 2; // move to next segment size
-    }
-
-    for idx in 0..n {
-        let _ = tx.send(Operation::SetColor(idx, Color32::WHITE));
-    }
-}
+// (Block Merge Sort removed)
 
 // ---------- Bogo Sort ----------
 pub fn bogo_sort(bars: &mut Vec<SortBar>, tx: &mpsc::Sender<Operation>) {

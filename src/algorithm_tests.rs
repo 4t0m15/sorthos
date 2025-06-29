@@ -2,8 +2,7 @@
 mod algorithm_tests {
     use crate::models::SortBar;
     use crate::sorting::{
-        block_merge_sort, bogo_sort, counting_sort_visual, radix_sort_visual, shell_sort_visual,
-        Operation,
+        bogo_sort, counting_sort_visual, radix_sort_visual, shell_sort_visual, Operation,
     };
     use std::sync::mpsc;
     use std::thread;
@@ -26,50 +25,6 @@ mod algorithm_tests {
     }
 
     /// Test cases for all algorithms
-
-    #[test]
-    fn test_block_merge_sort() {
-        println!("Testing Block Merge Sort...");
-        let test_cases_usize = vec![
-            vec![5, 2, 8, 1, 9, 3, 7, 4, 6],
-            vec![9, 8, 7, 6, 5, 4, 3, 2, 1],
-            vec![1, 2, 3, 4, 5, 6, 7, 8, 9],
-            vec![5, 5, 5, 5, 5],
-            vec![3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5],
-            vec![42],
-            vec![2, 1],
-            vec![],
-            (1..=15).rev().collect::<Vec<_>>(),
-            (1..=15).collect::<Vec<_>>(),
-        ];
-
-        for test_case in test_cases_usize {
-            let original = test_case.clone();
-            let mut bars = create_bars(test_case);
-            let (tx, _rx) = mpsc::channel::<Operation>();
-
-            block_merge_sort(&mut bars, &tx);
-            let result = extract_values(&bars);
-
-            assert!(
-                is_sorted_usize(&result),
-                "Block Merge Sort failed on input: {:?}, got: {:?}",
-                original,
-                result
-            );
-
-            // Verify all elements are preserved
-            let mut original_sorted = original.clone();
-            original_sorted.sort();
-            let mut result_sorted = result.clone();
-            result_sorted.sort();
-            assert_eq!(
-                original_sorted, result_sorted,
-                "Block Merge Sort lost elements on input: {:?}",
-                original
-            );
-        }
-    }
 
     #[test]
     fn test_counting_sort_visual() {
